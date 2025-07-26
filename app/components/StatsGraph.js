@@ -183,7 +183,7 @@ export default function StatsGraph({ entries }) {
           >
             <div className="flex items-center min-w-max px-4 py-6">
               {data.map((item, index) => (
-                <div key={item.date} className="flex flex-col items-center mx-4 min-w-[80px]">
+                <div key={item.date} className="flex flex-col items-center min-w-[56px]">
                   {/* Date above */}
                   <div className="text-xs text-gray-600 font-medium mb-2 whitespace-nowrap">
                     {formatDateShort(item.date)} {/* DD/MM format */}
@@ -210,23 +210,6 @@ export default function StatsGraph({ entries }) {
                   </div>
                   
                   {/* Income and Expense below */}
-                  <div className="mt-2 text-center">
-                    {item.income > 0 && (
-                      <div className="text-xs text-green-600 font-semibold">
-                        +{formatToK(item.income)}
-                      </div>
-                    )}
-                    {item.expense > 0 && (
-                      <div className="text-xs text-red-500 font-semibold">
-                        -{formatToK(item.expense)}
-                      </div>
-                    )}
-                    {item.income === 0 && item.expense === 0 && (
-                      <div className="text-xs text-gray-400">
-                        No activity
-                      </div>
-                    )}
-                  </div>
                   
                   {/* Net change indicator */}
                   <div className={`text-xs font-bold mt-1 ${

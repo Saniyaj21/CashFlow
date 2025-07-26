@@ -197,8 +197,8 @@ export default function Home() {
                     <button
                       key={option.value}
                       onClick={() => setFilterPeriod(option.value)}
-                      className={`relative px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all duration-300 transform ${
-                        filterPeriod === option.value ? option.active + ' shadow-lg scale-110' : option.inactive + ' hover:scale-105'
+                      className={`relative px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider ${
+                        filterPeriod === option.value ? option.active : option.inactive
                       }`}
                     >
                       {option.label}
@@ -292,7 +292,7 @@ export default function Home() {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-100 flex flex-col items-center pb-20">
       <Toaster position="top-center" />
       {/* Header */}
-      <header className="w-full sticky top-0 z-10 bg-gradient-to-r from-blue-100/80 to-purple-100/80 backdrop-blur-sm border-b border-blue-200/30 py-3 px-4 flex justify-around items-center">
+      <header className="w-full sticky top-0 z-50 bg-gradient-to-r from-blue-100/80 to-purple-100/80 backdrop-blur-sm border-b border-blue-200/30 py-3 px-4 flex justify-around items-center">
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
             <span className="text-white text-lg font-bold">₹</span>
