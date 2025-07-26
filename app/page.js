@@ -292,24 +292,26 @@ export default function Home() {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-100 flex flex-col items-center pb-20">
       <Toaster position="top-center" />
       {/* Header */}
-      <header className="w-full sticky top-0 z-50 bg-gradient-to-r from-blue-100/80 to-purple-100/80 backdrop-blur-sm border-b border-blue-200/30 py-3 px-4 flex justify-around items-center">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
-            <span className="text-white text-lg font-bold">₹</span>
+      <header className="w-full sticky top-0 z-50 bg-gradient-to-r from-blue-100/80 to-purple-100/80 backdrop-blur-sm border-b border-blue-200/30 py-3 px-4">
+        <div className="w-full max-w-3xl mx-auto flex justify-between items-center">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+              <span className="text-white text-lg font-bold">₹</span>
+            </div>
+            <h1 className="text-2xl font-bold text-gray-900 tracking-tight">CashFlow</h1>
           </div>
-          <h1 className="text-2xl font-bold text-gray-900 tracking-tight">CashFlow</h1>
+          <SignedIn>
+            <UserButton 
+              appearance={{
+                elements: {
+                  avatarBox: "w-10 h-10 rounded-xl",
+                  userButtonPopoverCard: "rounded-2xl shadow-2xl",
+                  userButtonPopoverActionButton: "rounded-xl"
+                }
+              }}
+            />
+          </SignedIn>
         </div>
-        <SignedIn>
-          <UserButton 
-            appearance={{
-              elements: {
-                avatarBox: "w-10 h-10 rounded-xl",
-                userButtonPopoverCard: "rounded-2xl shadow-2xl",
-                userButtonPopoverActionButton: "rounded-xl"
-              }
-            }}
-          />
-        </SignedIn>
       </header>
       
       {/* Main content */}

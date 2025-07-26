@@ -1,19 +1,10 @@
 'use client';
 import { useMemo, useState, useRef } from 'react';
 import { FaChartBar } from 'react-icons/fa';
-import {
-  ResponsiveContainer,
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  Tooltip,
-  Legend,
-  CartesianGrid,
-  LineChart,
-  Line,
-  ReferenceLine,
-} from 'recharts';
+import dynamic from 'next/dynamic';
+
+// Dynamically import ApexCharts to avoid SSR issues
+const Chart = dynamic(() => import('react-apexcharts'), { ssr: false });
 
 export default function StatsGraph({ entries }) {
   const timelineRef = useRef(null);
@@ -82,11 +73,14 @@ export default function StatsGraph({ entries }) {
     return `${day}/${month}`;
   };
 
-  // Format numbers to k format (e.g., 1000 -> 1k)
+  // Format numbers to k format (e.g., 1000 -> 1k, -1000 -> -1k)
   const formatToK = (value) => {
     const roundedValue = Math.round(value * 100) / 100; // Round to 2 decimal places
-    if (roundedValue >= 1000) {
-      return (roundedValue / 1000).toFixed(roundedValue % 1000 === 0 ? 0 : 1) + 'k';
+    const absValue = Math.abs(roundedValue);
+    
+    if (absValue >= 1000) {
+      const kValue = (absValue / 1000).toFixed(absValue % 1000 === 0 ? 0 : 1);
+      return (roundedValue < 0 ? '-' : '') + kValue + 'k';
     }
     return roundedValue.toString();
   };
@@ -123,6 +117,194 @@ export default function StatsGraph({ entries }) {
     });
   }, [data]);
 
+  // ApexCharts configuration for Bar Chart
+  const barChartOptions = {
+    chart: {
+      type: 'bar',
+      toolbar: {
+        show: false
+      },
+      background: 'transparent',
+      foreColor: '#000000'
+    },
+    plotOptions: {
+      bar: {
+        horizontal: false,
+        columnWidth: '55%',
+        borderRadius: 4,
+        dataLabels: {
+          position: 'top'
+        }
+      }
+    },
+    dataLabels: {
+      enabled: false
+    },
+    stroke: {
+      show: true,
+      width: 2,
+      colors: ['transparent']
+    },
+    xaxis: {
+      categories: data.map(item => formatDateShort(item.date)),
+      labels: {
+        colors: '#000000',
+        style: {
+          colors: '#000000',
+          fontSize: '12px',
+          fontWeight: '600'
+        }
+      }
+    },
+    yaxis: {
+      title: {
+        text: 'Amount (₹)',
+        style: {
+          color: '#000000',
+          fontSize: '12px',
+          fontWeight: '700'
+        }
+      },
+      labels: {
+        colors: '#000000',
+        formatter: function(value) {
+          return formatToK(value);
+        },
+        style: {
+          colors: '#000000',
+          fontSize: '12px',
+          fontWeight: '600'
+        }
+      }
+    },
+    fill: {
+      opacity: 1
+    },
+    tooltip: {
+      theme: 'light',
+      style: {
+        fontSize: '12px',
+        color: '#000000'
+      },
+      y: {
+        formatter: function(value) {
+          return `₹${value.toLocaleString('en-IN', {minimumFractionDigits:2, maximumFractionDigits:2})}`;
+        }
+      }
+    },
+    colors: ['#22c55e', '#ef4444'],
+    legend: {
+      position: 'top',
+      horizontalAlign: 'center',
+      fontSize: '14px',
+      labels: {
+        colors: '#000000'
+      },
+      markers: {
+        radius: 4
+      }
+    },
+    grid: {
+      borderColor: '#f3f4f6',
+      strokeDashArray: 3
+    },
+    theme: {
+      mode: 'light'
+    }
+  };
+
+  const barChartSeries = [
+    {
+      name: 'Income',
+      data: data.map(item => item.income)
+    },
+    {
+      name: 'Expense',
+      data: data.map(item => item.expense)
+    }
+  ];
+
+  // ApexCharts configuration for Line Chart
+  const lineChartOptions = {
+    chart: {
+      type: 'line',
+      toolbar: {
+        show: false
+      },
+      background: 'transparent',
+      foreColor: '#000000'
+    },
+    stroke: {
+      curve: 'smooth',
+      width: 3
+    },
+    xaxis: {
+      categories: trendData.map(item => formatDateShort(item.date)),
+      labels: {
+        colors: '#000000',
+        style: {
+          colors: '#000000',
+          fontSize: '12px',
+          fontWeight: '600'
+        }
+      }
+    },
+    yaxis: {
+      title: {
+        text: 'Balance (₹)',
+        style: {
+          color: '#000000',
+          fontSize: '12px',
+          fontWeight: '700'
+        }
+      },
+      labels: {
+        colors: '#000000',
+        formatter: function(value) {
+          return formatToK(value);
+        },
+        style: {
+          colors: '#000000',
+          fontSize: '12px',
+          fontWeight: '600'
+        }
+      }
+    },
+    tooltip: {
+      theme: 'light',
+      style: {
+        fontSize: '12px',
+        color: '#000000'
+      },
+      y: {
+        formatter: function(value) {
+          return `₹${value.toLocaleString('en-IN', {minimumFractionDigits:2, maximumFractionDigits:2})}`;
+        }
+      }
+    },
+    colors: ['#3b82f6'],
+    grid: {
+      borderColor: '#f3f4f6',
+      strokeDashArray: 3
+    },
+    markers: {
+      size: 4,
+      colors: ['#3b82f6'],
+      strokeColors: '#3b82f6',
+      strokeWidth: 2
+    },
+    theme: {
+      mode: 'light'
+    }
+  };
+
+  const lineChartSeries = [
+    {
+      name: 'Balance',
+      data: trendData.map(item => item.balance)
+    }
+  ];
+
   return (
     <div className="rounded-2xl p-4 flex flex-col items-center w-full max-w-xl mx-auto">
       <h2 className="text-lg font-bold mb-4 text-gray-800 tracking-tight text-center flex items-center justify-center gap-2">
@@ -137,6 +319,7 @@ export default function StatsGraph({ entries }) {
           <span className="text-xs text-gray-700 font-medium uppercase tracking-wide">Income</span>
           <div className="text-green-600 font-bold text-lg text-center">{totalIncome.toLocaleString('en-IN', {minimumFractionDigits:2, maximumFractionDigits:2})}</div>
         </div>
+
         <div className="flex flex-col items-center bg-red-50/60 rounded-2xl p-3 w-full max-w-[120px]">
           <div className="w-8 h-8 bg-red-500 rounded-lg mb-2 flex items-center justify-center">
             <span className="text-white text-sm font-bold">↙</span>
@@ -144,6 +327,7 @@ export default function StatsGraph({ entries }) {
           <span className="text-xs text-gray-700 font-medium uppercase tracking-wide">Expense</span>
           <div className="text-red-500 font-bold text-lg text-center">{totalExpense.toLocaleString('en-IN', {minimumFractionDigits:2, maximumFractionDigits:2})}</div>
         </div>
+
         <div className={`flex flex-col items-center ${netBalance >= 0 ? 'bg-blue-50/60' : 'bg-orange-50/60'} rounded-2xl p-3 w-full max-w-[120px]`}>
           <div className={`w-8 h-8 ${netBalance >= 0 ? 'bg-blue-500' : 'bg-orange-500'} rounded-lg mb-2 flex items-center justify-center`}>
             <span className="text-white text-sm font-bold">=</span>
@@ -209,8 +393,6 @@ export default function StatsGraph({ entries }) {
                     )}
                   </div>
                   
-                  {/* Income and Expense below */}
-                  
                   {/* Net change indicator */}
                   <div className={`text-xs font-bold mt-1 ${
                     (item.income - item.expense) >= 0 
@@ -243,33 +425,19 @@ export default function StatsGraph({ entries }) {
         Note: 1k = 1,000
       </div>
       
-            <div className="w-full h-64 flex justify-center mb-4">
-        <div className="w-full md:max-w-lg">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={data} margin={{ top: 20, right: 20, left: 20, bottom: 20 }}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="date" tickFormatter={formatDateShort} />
-              <YAxis tickFormatter={formatToK} />
-              <Tooltip 
-                formatter={(value, name) => [
-                  `${formatToK(value)} (${value.toLocaleString('en-IN', {minimumFractionDigits:2, maximumFractionDigits:2})})`,
-                  name
-                ]}
-                labelStyle={{ color: '#374151' }}
-                contentStyle={{ 
-                  backgroundColor: 'white', 
-                  border: '1px solid #e5e7eb',
-                  borderRadius: '8px',
-                  boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
-                }}
-              />
-              <Legend />
-              <Bar dataKey="income" fill="#22c55e" name="Income" radius={[2, 2, 0, 0]} />
-              <Bar dataKey="expense" fill="#ef4444" name="Expense" radius={[2, 2, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
+      {/* Bar Chart */}
+      {data.length > 0 && (
+        <div className="w-full h-64 flex justify-center mb-4">
+          <div className="w-full md:max-w-lg">
+            <Chart 
+              options={barChartOptions}
+              series={barChartSeries}
+              type="bar"
+              height={256}
+            />
+          </div>
         </div>
-      </div>
+      )}
       {data.length < 1 && <div className="text-gray-600 text-sm mt-2 mb-4">Add entries to see the chart.</div>}
 
       {/* Cash Flow Trend Chart */}
@@ -312,46 +480,12 @@ export default function StatsGraph({ entries }) {
           {/* Line chart */}
           <div className="w-full h-64 flex justify-center">
             <div className="w-full md:max-w-lg">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={trendData} margin={{ top: 20, right: 20, left: 20, bottom: 20 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
-                  <XAxis 
-                    dataKey="date" 
-                    tickFormatter={formatDateShort} 
-                    stroke="#6b7280"
-                    fontSize={12}
-                  />
-                  <YAxis 
-                    tickFormatter={formatToK} 
-                    stroke="#6b7280"
-                    fontSize={12}
-                  />
-                  <ReferenceLine y={0} stroke="#ef4444" strokeDasharray="2 2" />
-                  <Tooltip 
-                    formatter={(value, name) => [
-                      `${value.toLocaleString('en-IN', {minimumFractionDigits:2, maximumFractionDigits:2})}`,
-                      name
-                    ]}
-                    labelFormatter={(date) => `Date: ${formatDate(date)}`}
-                    labelStyle={{ color: '#374151' }}
-                    contentStyle={{ 
-                      backgroundColor: 'white', 
-                      border: '1px solid #e5e7eb',
-                      borderRadius: '8px',
-                      boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
-                    }}
-                  />
-                  <Line 
-                    type="monotone" 
-                    dataKey="balance" 
-                    stroke="#3b82f6" 
-                    strokeWidth={3}
-                    dot={{ fill: '#3b82f6', strokeWidth: 2, r: 4 }}
-                    activeDot={{ r: 6, stroke: '#3b82f6', strokeWidth: 2, fill: 'white' }}
-                    name="Balance"
-                  />
-                </LineChart>
-              </ResponsiveContainer>
+              <Chart 
+                options={lineChartOptions}
+                series={lineChartSeries}
+                type="line"
+                height={256}
+              />
             </div>
           </div>
         </div>
@@ -365,6 +499,26 @@ export default function StatsGraph({ entries }) {
         }
         .scrollbar-hide:active {
           cursor: grabbing !important;
+        }
+        
+        /* Custom tooltip styling */
+        :global(.apexcharts-tooltip) {
+          background: white !important;
+          border: 1px solid #e5e7eb !important;
+          border-radius: 8px !important;
+          box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
+          color: #000000 !important;
+        }
+        
+        :global(.apexcharts-tooltip-title) {
+          background: #f9fafb !important;
+          color: #000000 !important;
+          font-weight: 600 !important;
+        }
+        
+        :global(.apexcharts-tooltip-y-group) {
+          color: #000000 !important;
+          font-weight: 600 !important;
         }
       `}</style>
     </div>
