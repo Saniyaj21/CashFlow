@@ -20,6 +20,24 @@ export default function Home() {
   const [error, setError] = useState(null);
   const [editingEntry, setEditingEntry] = useState(null);
 
+  // Fix: Define createOrUpdateUser before useEffect
+  const createOrUpdateUser = useCallback(async () => {
+    try {
+      if (!user) return;
+      const response = await fetch('/api/users', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      if (!response.ok) {
+        console.error('Failed to create/update user');
+      }
+    } catch (error) {
+      console.error('Error creating/updating user:', error);
+    }
+  }, [user]);
+
   // Load entries from database and handle user creation
   useEffect(() => {
     if (user && isLoaded) {
@@ -28,25 +46,6 @@ export default function Home() {
       createOrUpdateUser();
     }
   }, [user, isLoaded, createOrUpdateUser]);
-
-  const createOrUpdateUser = useCallback(async () => {
-    try {
-      if (!user) return;
-      
-      const response = await fetch('/api/users', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-      
-      if (!response.ok) {
-        console.error('Failed to create/update user');
-      }
-    } catch (error) {
-      console.error('Error creating/updating user:', error);
-    }
-  }, [user]);
 
   async function loadEntries() {
     try {
