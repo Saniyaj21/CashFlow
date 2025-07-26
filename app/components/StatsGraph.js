@@ -329,7 +329,7 @@ export default function StatsGraph({ entries }) {
                   <ReferenceLine y={0} stroke="#ef4444" strokeDasharray="2 2" />
                   <Tooltip 
                     formatter={(value, name) => [
-                      `${formatToK(value)} (${value.toLocaleString('en-IN', {minimumFractionDigits:2, maximumFractionDigits:2})})`,
+                      `${value.toLocaleString('en-IN', {minimumFractionDigits:2, maximumFractionDigits:2})}`,
                       name
                     ]}
                     labelFormatter={(date) => `Date: ${formatDate(date)}`}
@@ -348,7 +348,7 @@ export default function StatsGraph({ entries }) {
                     strokeWidth={3}
                     dot={{ fill: '#3b82f6', strokeWidth: 2, r: 4 }}
                     activeDot={{ r: 6, stroke: '#3b82f6', strokeWidth: 2, fill: 'white' }}
-                    name="Running Balance"
+                    name="Balance"
                   />
                 </LineChart>
               </ResponsiveContainer>
