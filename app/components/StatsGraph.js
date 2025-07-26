@@ -297,7 +297,7 @@ export default function StatsGraph({ entries }) {
           </h3>
           
           <div className="text-xs text-gray-500 mb-4 text-center">
-            Running balance over time - see if you're building wealth or burning cash
+            Running balance over time - see if you&apos;re building wealth or burning cash
           </div>
 
           {/* Trend insights */}

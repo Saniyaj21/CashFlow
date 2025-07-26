@@ -4,7 +4,7 @@ import EntryForm from "./components/EntryForm";
 import EntryList from "./components/EntryList";
 import StatsGraph from "./components/StatsGraph";
 import ProfileSection from "./components/ProfileSection";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { FaHome, FaListUl, FaChartLine, FaPlusCircle, FaUserCircle } from 'react-icons/fa';
 import toast, { Toaster } from 'react-hot-toast';
 import { entriesAPI } from '../lib/api';
@@ -27,9 +27,9 @@ export default function Home() {
       // Create/update user in database
       createOrUpdateUser();
     }
-  }, [user, isLoaded]);
+  }, [user, isLoaded, createOrUpdateUser]);
 
-  async function createOrUpdateUser() {
+  const createOrUpdateUser = useCallback(async () => {
     try {
       if (!user) return;
       
@@ -46,7 +46,7 @@ export default function Home() {
     } catch (error) {
       console.error('Error creating/updating user:', error);
     }
-  }
+  }, [user]);
 
   async function loadEntries() {
     try {

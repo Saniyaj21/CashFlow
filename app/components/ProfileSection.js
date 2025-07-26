@@ -4,6 +4,7 @@ import { useUser, useClerk } from '@clerk/nextjs';
 import { FaUserCircle, FaSignOutAlt } from 'react-icons/fa';
 import { useState } from 'react';
 import toast from 'react-hot-toast';
+import Image from 'next/image';
 
 export default function ProfileSection() {
   const { user, isLoaded } = useUser();
@@ -59,10 +60,12 @@ export default function ProfileSection() {
       {/* User Avatar and Info */}
       <div className="w-24 h-24 bg-gradient-to-r from-purple-400 to-pink-500 rounded-3xl flex items-center justify-center shadow-2xl mb-6">
         {user.imageUrl ? (
-          <img 
+          <Image 
             src={user.imageUrl} 
             alt={user.fullName || 'User'} 
-            className="w-20 h-20 rounded-3xl object-cover"
+            width={80}
+            height={80}
+            className="rounded-3xl object-cover"
           />
         ) : (
           <FaUserCircle size={48} className="text-white" />
