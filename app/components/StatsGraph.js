@@ -1,5 +1,6 @@
 'use client';
 import { useMemo } from 'react';
+import { FaChartBar } from 'react-icons/fa';
 import {
   ResponsiveContainer,
   AreaChart,
@@ -28,39 +29,49 @@ export default function StatsGraph({ entries }) {
   const netBalance = totalIncome - totalExpense;
 
   return (
-    <div className="rounded-xl bg-white shadow-lg p-4 flex flex-col items-center w-full max-w-xl border border-gray-100">
-      <h2 className="text-lg font-bold mb-2 text-gray-700 tracking-tight flex items-center gap-2">
-        <span className="inline-block w-3 h-3 rounded-full bg-green-400 mr-1"></span> Income
-        <span className="inline-block w-3 h-3 rounded-full bg-red-400 ml-4 mr-1"></span> Expense
+    <div className="rounded-2xl p-4 flex flex-col items-center w-full max-w-xl mx-auto">
+      <h2 className="text-lg font-bold mb-4 text-gray-800 tracking-tight text-center flex items-center justify-center gap-2">
+        <FaChartBar className="text-blue-600" />
+        Financial Overview
       </h2>
-      <div className="flex w-full justify-between mb-4">
-        <div className="flex flex-col items-center flex-1">
-          <span className="text-xs text-gray-400">Total Income</span>
-          <span className="text-green-600 font-bold text-lg">{totalIncome.toLocaleString('en-IN', {minimumFractionDigits:2, maximumFractionDigits:2})}</span>
+      <div className="grid grid-cols-3 gap-4 mb-6 w-full justify-items-center">
+        <div className="flex flex-col items-center bg-green-50/60 rounded-2xl p-3 w-full max-w-[120px]">
+          <div className="w-8 h-8 bg-green-500 rounded-lg mb-2 flex items-center justify-center">
+            <span className="text-white text-sm font-bold">↗</span>
+          </div>
+          <span className="text-xs text-gray-700 font-medium uppercase tracking-wide">Income</span>
+          <div className="text-green-600 font-bold text-lg text-center">{totalIncome.toLocaleString('en-IN', {minimumFractionDigits:2, maximumFractionDigits:2})}</div>
         </div>
-        <div className="flex flex-col items-center flex-1">
-          <span className="text-xs text-gray-400">Total Expense</span>
-          <span className="text-red-500 font-bold text-lg">{totalExpense.toLocaleString('en-IN', {minimumFractionDigits:2, maximumFractionDigits:2})}</span>
+        <div className="flex flex-col items-center bg-red-50/60 rounded-2xl p-3 w-full max-w-[120px]">
+          <div className="w-8 h-8 bg-red-500 rounded-lg mb-2 flex items-center justify-center">
+            <span className="text-white text-sm font-bold">↙</span>
+          </div>
+          <span className="text-xs text-gray-700 font-medium uppercase tracking-wide">Expense</span>
+          <div className="text-red-500 font-bold text-lg text-center">{totalExpense.toLocaleString('en-IN', {minimumFractionDigits:2, maximumFractionDigits:2})}</div>
         </div>
-        <div className="flex flex-col items-center flex-1">
-          <span className="text-xs text-gray-400">Net Balance</span>
-          <span className="text-blue-600 font-bold text-lg">{netBalance.toLocaleString('en-IN', {minimumFractionDigits:2, maximumFractionDigits:2})}</span>
+        <div className={`flex flex-col items-center ${netBalance >= 0 ? 'bg-blue-50/60' : 'bg-orange-50/60'} rounded-2xl p-3 w-full max-w-[120px]`}>
+          <div className={`w-8 h-8 ${netBalance >= 0 ? 'bg-blue-500' : 'bg-orange-500'} rounded-lg mb-2 flex items-center justify-center`}>
+            <span className="text-white text-sm font-bold">=</span>
+          </div>
+          <span className="text-xs text-gray-700 font-medium uppercase tracking-wide">Balance</span>
+          <div className={`font-bold text-lg text-center ${netBalance >= 0 ? 'text-blue-600' : 'text-red-500'}`}>{netBalance.toLocaleString('en-IN', {minimumFractionDigits:2, maximumFractionDigits:2})}</div>
         </div>
       </div>
-      <div className="w-full h-64">
-        <ResponsiveContainer width="100%" height="100%">
-          <AreaChart data={data} margin={{ top: 20, right: 20, left: 0, bottom: 20 }}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="date" tickFormatter={d => d.slice(5)} />
-            <YAxis />
-            <Tooltip formatter={(value) => value.toLocaleString('en-IN', {minimumFractionDigits:2, maximumFractionDigits:2})} />
-            <Legend />
-            <Area type="monotone" dataKey="income" stroke="#22c55e" fill="#bbf7d0" name="Income" />
-            <Area type="monotone" dataKey="expense" stroke="#ef4444" fill="#fecaca" name="Expense" />
-          </AreaChart>
-        </ResponsiveContainer>
+            <div className="w-full h-64 flex justify-center mb-[200px]">
+        <div className="w-full max-w-lg">
+          <ResponsiveContainer width="100%" height="100%">
+            <AreaChart data={data} margin={{ top: 20, right: 20, left: 20, bottom: 20 }}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="date" tickFormatter={d => d.slice(5)} />
+              <YAxis />
+              <Tooltip formatter={(value) => value.toLocaleString('en-IN', {minimumFractionDigits:2, maximumFractionDigits:2})} />
+              <Area type="monotone" dataKey="income" stroke="#22c55e" fill="#bbf7d0" name="Income" />
+              <Area type="monotone" dataKey="expense" stroke="#ef4444" fill="#fecaca" name="Expense" />
+            </AreaChart>
+          </ResponsiveContainer>
+        </div>
       </div>
-      {data.length < 1 && <div className="text-gray-400 text-sm mt-2">Add entries to see the chart.</div>}
+      {data.length < 1 && <div className="text-gray-600 text-sm mt-2 mb-[200px]">Add entries to see the chart.</div>}
     </div>
   );
 }

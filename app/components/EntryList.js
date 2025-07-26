@@ -1,33 +1,84 @@
 'use client';
 
-import { FaPlus, FaMinus } from 'react-icons/fa';
+import { FaTrash, FaArrowUp, FaArrowDown, FaTag, FaEdit } from 'react-icons/fa';
 
 // EntryList.js
-// List of entries with color coding
+// Modern card-based list of entries
 export default function EntryList({ entries, onDelete }) {
-  if (!entries.length) return <p className="text-gray-400 text-center py-8">No entries yet.</p>;
+  if (!entries.length) return (
+    <div className="text-center py-12">
+      <div className="text-gray-400 text-4xl mb-3">💰</div>
+      <p className="text-gray-600">No entries yet</p>
+      <p className="text-gray-500 text-sm">Start by adding your first transaction</p>
+    </div>
+  );
+  
   return (
-    <ul className="space-y-4">
+    <div className="space-y-3">
       {entries.map(entry => (
-        <li key={entry.id} className={`flex flex-col gap-1 p-4 rounded-lg shadow border-l-8 ${entry.type==='income' ? 'border-green-500 bg-green-50' : 'border-red-500 bg-red-50'}`}>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <span className={`font-bold text-lg ${entry.type==='income' ? 'text-green-700' : 'text-red-700'}`}>{entry.type === 'income' ? 'Income' : 'Expense'}</span>
-              {entry.category && <span className="px-2 py-0.5 bg-blue-100 text-blue-700 rounded text-xs font-medium">{entry.category}</span>}
+                 <div key={entry.id} className="bg-white/80 rounded-2xl p-4 hover:bg-white/90 transition-all duration-200 hover:shadow-lg group">
+          {/* Header with type indicator and amount */}
+          <div className="flex items-start justify-between mb-3">
+            <div className="flex items-center gap-3">
+              <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${entry.type==='income' ? 'bg-green-100' : 'bg-red-100'}`}>
+                {entry.type === 'income' ? 
+                  <FaArrowUp className="text-green-600" size={16} /> : 
+                  <FaArrowDown className="text-red-600" size={16} />
+                }
+              </div>
+              <div>
+                <div className={`font-semibold text-lg ${entry.type==='income' ? 'text-green-700' : 'text-red-700'}`}>
+                  {entry.type === 'income' ? 'Income' : 'Expense'}
+                </div>
+                <div className="flex items-center gap-2 mt-1">
+                  <FaTag className="text-gray-400" size={12} />
+                  <span className="text-sm text-gray-600 font-medium">{entry.category}</span>
+                </div>
+              </div>
             </div>
-            <span className="font-semibold text-xl flex items-center gap-1">
-              {/* Show + or - icon for income/expense */}
-              {entry.type === 'income' ? <FaPlus className="inline text-green-500" size={14} style={{fontWeight: 400, marginBottom: 1}} /> : <FaMinus className="inline text-red-500" size={14} style={{fontWeight: 400, marginBottom: 1}} />}
-              <span className="align-middle">{entry.amount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
-            </span>
+            <div className="text-right">
+              <div className={`text-2xl font-bold ${entry.type==='income' ? 'text-green-600' : 'text-red-600'}`}>
+                {entry.type === 'income' ? '+' : '-'}₹{entry.amount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </div>
+              <div className="text-xs text-gray-500 mt-1">{entry.date}</div>
+            </div>
           </div>
-          <div className="flex flex-wrap items-center gap-2 text-gray-600 text-sm">
-            <span className="break-words max-w-full whitespace-pre-line">{entry.description}</span>
-            <span className="ml-auto text-xs text-gray-400">{entry.date}</span>
-            <button onClick={()=>onDelete(entry.id)} className="ml-2 px-2 py-0.5 bg-red-500 text-white rounded hover:bg-red-600 text-xs">Delete</button>
-          </div>
-        </li>
+          
+          {/* Description */}
+          {entry.description && (
+            <div className="mb-3">
+              <p className="text-gray-700 text-sm leading-relaxed">{entry.description}</p>
+            </div>
+          )}
+          
+                     {/* Footer with actions */}
+           <div className="flex items-center justify-between pt-2 border-t border-gray-100">
+             <div className="text-xs text-gray-500">
+               {new Date(entry.date).toLocaleDateString('en-IN', { 
+                 weekday: 'short', 
+                 day: 'numeric', 
+                 month: 'short' 
+               })}
+             </div>
+             <div className="flex items-center gap-2">
+               <button 
+                 onClick={() => {/* TODO: Add edit functionality */}} 
+                 className="flex items-center gap-1 px-2 py-1 text-xs text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200"
+               >
+                 <FaEdit size={11} />
+                 Edit
+               </button>
+               <button 
+                 onClick={() => onDelete(entry.id)} 
+                 className="flex items-center gap-1 px-2 py-1 text-xs text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all duration-200"
+               >
+                 <FaTrash size={11} />
+                 Delete
+               </button>
+             </div>
+           </div>
+        </div>
       ))}
-    </ul>
+    </div>
   );
 }
