@@ -156,13 +156,23 @@ export default function EntryForm({ onAdd, onUpdate, editEntry, onCancelEdit }) 
             />
             <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-lg">
               {amount && !isNaN(amount) ? (
-                parseFloat(amount) === 0 ? '😐' :
-                parseFloat(amount) < 100 ? '😊' :
-                parseFloat(amount) < 500 ? '😄' :
-                parseFloat(amount) < 1000 ? '🤩' :
-                parseFloat(amount) < 5000 ? '🤑' :
-                parseFloat(amount) < 10000 ? '💎' :
-                '🚀'
+                type === 'income' ? (
+                  parseFloat(amount) === 0 ? '😐' :
+                  parseFloat(amount) < 100 ? '🙂' :
+                  parseFloat(amount) < 500 ? '😃' :
+                  parseFloat(amount) < 1000 ? '😁' :
+                  parseFloat(amount) < 5000 ? '🤑' :
+                  parseFloat(amount) < 10000 ? '🎉' :
+                  '🚀'
+                ) : (
+                  parseFloat(amount) === 0 ? '😐' :
+                  parseFloat(amount) < 100 ? '😅' :
+                  parseFloat(amount) < 500 ? '😬' :
+                  parseFloat(amount) < 1000 ? '😟' :
+                  parseFloat(amount) < 5000 ? '😱' :
+                  parseFloat(amount) < 10000 ? '💸' :
+                  '💀'
+                )
               ) : '💰'}
             </div>
           </div>
@@ -245,7 +255,7 @@ export default function EntryForm({ onAdd, onUpdate, editEntry, onCancelEdit }) 
           type="submit"
           className={`${isEditing ? 'flex-1' : 'w-full'} bg-blue-600 text-white font-bold py-3 px-6 rounded-xl hover:bg-blue-700 transition-all duration-200 text-base min-w-[120px] tracking-wide hover:scale-105`}
         >
-          {isEditing ? 'Update Entry' : 'Save Transaction'}
+          {isEditing ? 'Update' : 'Save Transaction'}
         </button>
       </div>
     </form>

@@ -19,6 +19,7 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [editingEntry, setEditingEntry] = useState(null);
+  const [filterPeriod, setFilterPeriod] = useState('this-month'); // Filter for list page
 
   // Fix: Define createOrUpdateUser before useEffect
   const createOrUpdateUser = useCallback(async () => {
@@ -115,12 +116,45 @@ export default function Home() {
     setEditingEntry(null);
   }
 
+  // Get filtered entries based on period
+  const getFilteredEntries = (period) => {
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    
+    switch (period) {
+      case 'this-month':
+        const thisMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+        return entries.filter(e => new Date(e.date) >= thisMonthStart);
+      case '30-days':
+        const thirtyDaysAgo = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000);
+        return entries.filter(e => new Date(e.date) >= thirtyDaysAgo);
+      case '60-days':
+        const sixtyDaysAgo = new Date(today.getTime() - 60 * 24 * 60 * 60 * 1000);
+        return entries.filter(e => new Date(e.date) >= sixtyDaysAgo);
+      case '90-days':
+        const ninetyDaysAgo = new Date(today.getTime() - 90 * 24 * 60 * 60 * 1000);
+        return entries.filter(e => new Date(e.date) >= ninetyDaysAgo);
+      case '6-months':
+        const sixMonthsAgo = new Date(today.getTime() - 180 * 24 * 60 * 60 * 1000);
+        return entries.filter(e => new Date(e.date) >= sixMonthsAgo);
+      case '1-year':
+        const oneYearAgo = new Date(today.getTime() - 365 * 24 * 60 * 60 * 1000);
+        return entries.filter(e => new Date(e.date) >= oneYearAgo);
+      case 'all':
+      default:
+        return entries;
+    }
+  };
+
   // Filtered entries for stats by date range
   const filteredEntries = entries.filter(e => {
     if (fromDate && e.date < fromDate) return false;
     if (toDate && e.date > toDate) return false;
     return true;
   });
+
+  // Get current filtered entries for list
+  const currentFilteredEntries = getFilteredEntries(filterPeriod);
 
   // Mobile app-like main content switching
   let mainContent;
@@ -147,6 +181,33 @@ export default function Home() {
           </div>
         ) : (
           <>
+            {/* Filter Pills */}
+            <div className="w-full mb-4">
+              <div className="relative">
+                <div className="flex flex-wrap gap-1.5 justify-center">
+                  {[
+                    { value: 'this-month', label: 'This Month', active: 'bg-blue-500 text-white ring-2 ring-blue-300', inactive: 'bg-white/80 text-blue-700 hover:bg-blue-100 hover:text-blue-800 border border-gray-200' },
+                    { value: '30-days', label: '30 Days', active: 'bg-green-500 text-white ring-2 ring-green-300', inactive: 'bg-white/80 text-green-700 hover:bg-green-100 hover:text-green-800 border border-gray-200' },
+                    { value: '60-days', label: '60 Days', active: 'bg-yellow-500 text-white ring-2 ring-yellow-300', inactive: 'bg-white/80 text-yellow-700 hover:bg-yellow-100 hover:text-yellow-800 border border-gray-200' },
+                    { value: '90-days', label: '90 Days', active: 'bg-orange-500 text-white ring-2 ring-orange-300', inactive: 'bg-white/80 text-orange-700 hover:bg-orange-100 hover:text-orange-800 border border-gray-200' },
+                    { value: '6-months', label: '6 Months', active: 'bg-red-500 text-white ring-2 ring-red-300', inactive: 'bg-white/80 text-red-700 hover:bg-red-100 hover:text-red-800 border border-gray-200' },
+                    { value: '1-year', label: '1 Year', active: 'bg-pink-500 text-white ring-2 ring-pink-300', inactive: 'bg-white/80 text-pink-700 hover:bg-pink-100 hover:text-pink-800 border border-gray-200' },
+                    { value: 'all', label: 'All Time', active: 'bg-purple-500 text-white ring-2 ring-purple-300', inactive: 'bg-white/80 text-purple-700 hover:bg-purple-100 hover:text-purple-800 border border-gray-200' }
+                  ].map((option) => (
+                    <button
+                      key={option.value}
+                      onClick={() => setFilterPeriod(option.value)}
+                      className={`relative px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all duration-300 transform ${
+                        filterPeriod === option.value ? option.active + ' shadow-lg scale-110' : option.inactive + ' hover:scale-105'
+                      }`}
+                    >
+                      {option.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
             {/* Financial Summary Header */}
             <div className="w-full rounded-2xl p-4 mb-4">
               <div className="grid grid-cols-3 gap-4">
@@ -155,27 +216,27 @@ export default function Home() {
                     <span className="text-white text-sm font-bold">↗</span>
                   </div>
                   <div className="text-xs text-gray-700 font-medium uppercase tracking-wide">Income</div>
-                  <div className="text-green-600 font-bold text-lg">{totalIncome.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
+                  <div className="text-green-600 font-bold text-lg">{currentFilteredEntries.filter(e => e.type === 'income').reduce((sum, e) => sum + e.amount, 0).toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
                 </div>
                 <div className="text-center group">
                   <div className="w-8 h-8 bg-red-500 rounded-lg mx-auto mb-2 flex items-center justify-center group-hover:scale-105 transition-transform">
                     <span className="text-white text-sm font-bold">↙</span>
                   </div>
                   <div className="text-xs text-gray-700 font-medium uppercase tracking-wide">Expense</div>
-                  <div className="text-red-500 font-bold text-lg">{totalExpense.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
+                  <div className="text-red-500 font-bold text-lg">{currentFilteredEntries.filter(e => e.type === 'expense').reduce((sum, e) => sum + e.amount, 0).toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
                 </div>
                 <div className="text-center group">
-                  <div className={`w-8 h-8 ${netBalance >= 0 ? 'bg-blue-500' : 'bg-orange-500'} rounded-lg mx-auto mb-2 flex items-center justify-center group-hover:scale-105 transition-transform`}>
+                  <div className={`w-8 h-8 ${(currentFilteredEntries.filter(e => e.type === 'income').reduce((sum, e) => sum + e.amount, 0) - currentFilteredEntries.filter(e => e.type === 'expense').reduce((sum, e) => sum + e.amount, 0)) >= 0 ? 'bg-blue-500' : 'bg-orange-500'} rounded-lg mx-auto mb-2 flex items-center justify-center group-hover:scale-105 transition-transform`}>
                     <span className="text-white text-sm font-bold">=</span>
                   </div>
                   <div className="text-xs text-gray-700 font-medium uppercase tracking-wide">Balance</div>
-                  <div className={`font-bold text-lg ${netBalance >= 0 ? 'text-blue-600' : 'text-red-500'}`}>{netBalance.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
+                  <div className={`font-bold text-lg ${(currentFilteredEntries.filter(e => e.type === 'income').reduce((sum, e) => sum + e.amount, 0) - currentFilteredEntries.filter(e => e.type === 'expense').reduce((sum, e) => sum + e.amount, 0)) >= 0 ? 'text-blue-600' : 'text-red-500'}`}>{(currentFilteredEntries.filter(e => e.type === 'income').reduce((sum, e) => sum + e.amount, 0) - currentFilteredEntries.filter(e => e.type === 'expense').reduce((sum, e) => sum + e.amount, 0)).toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
                 </div>
               </div>
             </div>
             {/* Entries List */}
             <div className="flex-1 w-full overflow-y-auto rounded-2xl p-4 min-h-0 h-full">
-              <EntryList entries={entries} onDelete={deleteEntry} onEdit={handleEditEntry} />
+              <EntryList entries={currentFilteredEntries} onDelete={deleteEntry} onEdit={handleEditEntry} />
             </div>
           </>
         )}
