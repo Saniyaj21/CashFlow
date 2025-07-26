@@ -14,8 +14,13 @@ const categorySchema = new mongoose.Schema({
     type: String,
     default: '#888888', // Optionally store a color for the category
   },
-  // Optionally, add a userId field for multi-user support in the future
-  // userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  // Reference to the user who owns this category
+  userId: { 
+    type: mongoose.Schema.Types.ObjectId, 
+    ref: 'User',
+    required: true,
+    index: true,
+  },
 }, {
   timestamps: true,
 });

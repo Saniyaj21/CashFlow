@@ -3,23 +3,50 @@
 import EntryForm from "./components/EntryForm";
 import EntryList from "./components/EntryList";
 import StatsGraph from "./components/StatsGraph";
+import ProfileSection from "./components/ProfileSection";
 import { useEffect, useState } from "react";
 import { FaHome, FaListUl, FaChartLine, FaPlusCircle, FaUserCircle } from 'react-icons/fa';
 import toast, { Toaster } from 'react-hot-toast';
 import { entriesAPI } from '../lib/api';
+import { useUser, SignInButton, SignUpButton, SignedIn, SignedOut, UserButton } from '@clerk/nextjs';
 
 export default function Home() {
+  const { user, isLoaded } = useUser();
   const [entries, setEntries] = useState([]);
   const [activeTab, setActiveTab] = useState('home');
   const [fromDate, setFromDate] = useState('');
   const [toDate, setToDate] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [editingEntry, setEditingEntry] = useState(null);
 
-  // Load entries from database
+  // Load entries from database and handle user creation
   useEffect(() => {
-    loadEntries();
-  }, []);
+    if (user && isLoaded) {
+      loadEntries();
+      // Create/update user in database
+      createOrUpdateUser();
+    }
+  }, [user, isLoaded]);
+
+  async function createOrUpdateUser() {
+    try {
+      if (!user) return;
+      
+      const response = await fetch('/api/users', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      if (!response.ok) {
+        console.error('Failed to create/update user');
+      }
+    } catch (error) {
+      console.error('Error creating/updating user:', error);
+    }
+  }
 
   async function loadEntries() {
     try {
@@ -56,6 +83,19 @@ export default function Home() {
     }
   }
 
+  async function updateEntry(id, entryData) {
+    try {
+      const updatedEntry = await entriesAPI.update(id, entryData);
+      setEntries(entries.map(e => e.id === id ? updatedEntry : e));
+      setEditingEntry(null);
+      setActiveTab('list'); // Redirect to list after updating
+      toast.success('Entry updated successfully!');
+    } catch (err) {
+      console.error('Error updating entry:', err);
+      toast.error('Failed to update entry: ' + err.message);
+    }
+  }
+
   async function deleteEntry(id) {
     try {
       await entriesAPI.delete(id);
@@ -65,6 +105,15 @@ export default function Home() {
       console.error('Error deleting entry:', err);
       toast.error('Failed to delete entry: ' + err.message);
     }
+  }
+
+  function handleEditEntry(entry) {
+    setEditingEntry(entry);
+    setActiveTab('home'); // Switch to form tab for editing
+  }
+
+  function handleCancelEdit() {
+    setEditingEntry(null);
   }
 
   // Filtered entries for stats by date range
@@ -77,7 +126,14 @@ export default function Home() {
   // Mobile app-like main content switching
   let mainContent;
   if (activeTab === 'home') {
-    mainContent = <EntryForm onAdd={addEntry} />;
+    mainContent = (
+      <EntryForm 
+        onAdd={addEntry} 
+        onUpdate={updateEntry}
+        editEntry={editingEntry}
+        onCancelEdit={handleCancelEdit}
+      />
+    );
   } else if (activeTab === 'list') {
     // Calculate totals for the list header
     const totalIncome = entries.filter(e => e.type === 'income').reduce((sum, e) => sum + e.amount, 0);
@@ -120,7 +176,7 @@ export default function Home() {
             </div>
             {/* Entries List */}
             <div className="flex-1 w-full overflow-y-auto rounded-2xl p-4 min-h-0 h-full">
-              <EntryList entries={entries} onDelete={deleteEntry} />
+              <EntryList entries={entries} onDelete={deleteEntry} onEdit={handleEditEntry} />
             </div>
           </>
         )}
@@ -128,7 +184,7 @@ export default function Home() {
     );
   } else if (activeTab === 'stats') {
     mainContent = (
-      <div className="w-full flex flex-col items-center" style={{height: 'calc(100dvh - 120px)'}}>
+      <div className="w-full flex flex-col items-center">
         <div className="flex flex-col sm:flex-row gap-4 mb-6 flex-wrap rounded-2xl p-6 w-full max-w-xl justify-center animate-fade-in items-stretch">
           <div className="flex flex-col items-center mx-2 flex-1 min-w-[120px]">
             <span className="text-xs font-semibold text-gray-700 mb-1 tracking-wide uppercase">From</span>
@@ -155,49 +211,86 @@ export default function Home() {
       </div>
     );
   } else if (activeTab === 'profile') {
-          mainContent = (
-        <div className="w-full max-w-md flex flex-col items-center justify-center py-8">
-          <div className="w-20 h-20 bg-gradient-to-r from-purple-400 to-pink-500 rounded-3xl flex items-center justify-center shadow-2xl mb-6">
-            <FaUserCircle size={40} className="text-white" />
+    mainContent = <ProfileSection />;
+  }
+
+  // Show loading state while Clerk is loading
+  if (!isLoaded) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-100 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4 animate-pulse">
+            <span className="text-white text-2xl font-bold">₹</span>
           </div>
-          <h2 className="text-2xl font-bold text-gray-800 mb-3">Profile</h2>
-          <p className="text-gray-600 text-center">Personalization features coming soon!</p>
-                     <div className="mt-6 bg-blue-100/50 rounded-2xl p-6 w-full">
-             <div className="text-sm text-gray-700 text-center">
-               🚀 Coming Soon: User accounts, data export, settings & more!
-             </div>
-           </div>
+          <div className="text-gray-600">Loading...</div>
         </div>
-      );
+      </div>
+    );
   }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-100 flex flex-col items-center pb-20">
       <Toaster position="top-center" />
       {/* Header */}
-      <header className="w-full sticky top-0 z-10 bg-gradient-to-r from-blue-100/80 to-purple-100/80 backdrop-blur-sm border-b border-blue-200/30 py-3 px-4 flex justify-center">
+      <header className="w-full sticky top-0 z-10 bg-gradient-to-r from-blue-100/80 to-purple-100/80 backdrop-blur-sm border-b border-blue-200/30 py-3 px-4 flex justify-around items-center">
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
             <span className="text-white text-lg font-bold">₹</span>
           </div>
           <h1 className="text-2xl font-bold text-gray-900 tracking-tight">CashFlow</h1>
         </div>
+        <SignedIn>
+          <UserButton 
+            appearance={{
+              elements: {
+                avatarBox: "w-10 h-10 rounded-xl",
+                userButtonPopoverCard: "rounded-2xl shadow-2xl",
+                userButtonPopoverActionButton: "rounded-xl"
+              }
+            }}
+          />
+        </SignedIn>
       </header>
+      
       {/* Main content */}
       <main className="flex-1 w-full flex flex-col items-center justify-center py-8 px-2">
         <div className="w-full max-w-3xl flex flex-col items-center gap-6 min-h-[calc(100dvh-120px)]">
-          {mainContent}
+          <SignedIn>
+            {mainContent}
+          </SignedIn>
+          <SignedOut>
+            <div className="w-full max-w-md flex flex-col items-center justify-center py-8">
+              <div className="w-20 h-20 bg-gradient-to-r from-blue-400 to-purple-500 rounded-3xl flex items-center justify-center shadow-2xl mb-6">
+                <FaUserCircle size={40} className="text-white" />
+              </div>
+              <h2 className="text-2xl font-bold text-gray-800 mb-3">Welcome to CashFlow</h2>
+              <p className="text-gray-600 text-center mb-6">Sign in to start tracking your finances</p>
+              <div className="flex flex-col sm:flex-row gap-3 w-full">
+                <SignInButton mode="modal">
+                  <button className="flex-1 bg-gradient-to-r from-blue-500 to-purple-600 text-white px-6 py-3 rounded-2xl font-semibold hover:from-blue-600 hover:to-purple-700 transition-all duration-200">
+                    Sign In
+                  </button>
+                </SignInButton>
+                <SignUpButton mode="modal">
+                  <button className="flex-1 bg-white/70 backdrop-blur-sm text-gray-700 px-6 py-3 rounded-2xl font-semibold hover:bg-white/90 transition-all duration-200 border border-gray-200">
+                    Sign Up
+                  </button>
+                </SignUpButton>
+              </div>
+            </div>
+          </SignedOut>
         </div>
       </main>
-      {/* Bottom Navigation for all devices */}
-      <nav className="fixed bottom-4 left-4 right-4 z-20 bg-white/70 backdrop-blur-md rounded-3xl flex justify-around items-center h-16 mx-auto max-w-md">
-        <button onClick={() => setActiveTab('home')} className={`flex flex-col items-center text-xs p-3 transition-all duration-200 ${activeTab==='home' ? 'text-blue-600' : 'text-gray-500 hover:text-gray-700'}`}> <FaPlusCircle size={20} /> <span className="mt-1">Add</span> </button>
-        <button onClick={() => setActiveTab('list')} className={`flex flex-col items-center text-xs p-3 transition-all duration-200 ${activeTab==='list' ? 'text-blue-600' : 'text-gray-500 hover:text-gray-700'}`}> <FaListUl size={20} /> <span className="mt-1">List</span> </button>
-        <button onClick={() => setActiveTab('stats')} className={`flex flex-col items-center text-xs p-3 transition-all duration-200 ${activeTab==='stats' ? 'text-blue-600' : 'text-gray-500 hover:text-gray-700'}`}> <FaChartLine size={20} /> <span className="mt-1">Stats</span> </button>
-        <button onClick={() => setActiveTab('profile')} className={`flex flex-col items-center text-xs p-3 transition-all duration-200 ${activeTab==='profile' ? 'text-blue-600' : 'text-gray-500 hover:text-gray-700'}`}> <FaUserCircle size={20} /> <span className="mt-1">Profile</span> </button>
-      </nav>
-      {/* Footer for desktop */}
-      {/* <footer className="hidden md:block w-full text-center text-xs text-gray-400 py-4 mt-8">© {new Date().getFullYear()} Cashflow. All rights reserved.</footer> */}
+      
+      {/* Bottom Navigation - only show when signed in */}
+      <SignedIn>
+        <nav className="fixed bottom-4 left-4 right-4 z-20 bg-white/70 backdrop-blur-md rounded-3xl flex justify-around items-center h-16 mx-auto max-w-md">
+          <button onClick={() => setActiveTab('home')} className={`flex flex-col items-center text-xs p-3 transition-all duration-200 ${activeTab==='home' ? 'text-blue-600' : 'text-gray-500 hover:text-gray-700'}`}> <FaPlusCircle size={20} /> <span className="mt-1">Add</span> </button>
+          <button onClick={() => setActiveTab('list')} className={`flex flex-col items-center text-xs p-3 transition-all duration-200 ${activeTab==='list' ? 'text-blue-600' : 'text-gray-500 hover:text-gray-700'}`}> <FaListUl size={20} /> <span className="mt-1">List</span> </button>
+          <button onClick={() => setActiveTab('stats')} className={`flex flex-col items-center text-xs p-3 transition-all duration-200 ${activeTab==='stats' ? 'text-blue-600' : 'text-gray-500 hover:text-gray-700'}`}> <FaChartLine size={20} /> <span className="mt-1">Stats</span> </button>
+          <button onClick={() => setActiveTab('profile')} className={`flex flex-col items-center text-xs p-3 transition-all duration-200 ${activeTab==='profile' ? 'text-blue-600' : 'text-gray-500 hover:text-gray-700'}`}> <FaUserCircle size={20} /> <span className="mt-1">Profile</span> </button>
+        </nav>
+      </SignedIn>
     </div>
   );
 }

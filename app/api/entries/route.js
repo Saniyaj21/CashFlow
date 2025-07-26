@@ -1,12 +1,37 @@
 import { NextResponse } from 'next/server';
+import { auth } from '@clerk/nextjs/server';
 import connectDB from '../../../lib/mongodb';
 import Entry from '../../../models/Entry';
+import User from '../../../models/User';
 
-// GET /api/entries - Fetch all entries
+// GET /api/entries - Fetch all entries for current user
 export async function GET() {
   try {
+    const { userId } = await auth();
+    
+    if (!userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     await connectDB();
-    const entries = await Entry.find({}).sort({ date: -1, createdAt: -1 });
+    
+    // Find user by Clerk ID or create if doesn't exist
+    let user = await User.findOne({ clerkId: userId });
+    
+    if (!user) {
+      // Create user if they don't exist
+      const { currentUser } = await import('@clerk/nextjs/server');
+      const clerkUser = await currentUser();
+      
+      if (!clerkUser) {
+        return NextResponse.json({ error: 'Unable to get user data' }, { status: 400 });
+      }
+      
+      user = await User.findOrCreateFromClerk(clerkUser);
+    }
+    
+    // Get entries for this user only
+    const entries = await Entry.find({ userId: user._id }).sort({ date: -1, createdAt: -1 });
     
     // Convert to plain objects and format dates
     const formattedEntries = entries.map(entry => ({
@@ -30,10 +55,32 @@ export async function GET() {
   }
 }
 
-// POST /api/entries - Create new entry
+// POST /api/entries - Create new entry for current user
 export async function POST(request) {
   try {
+    const { userId } = await auth();
+    
+    if (!userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     await connectDB();
+    
+    // Find user by Clerk ID or create if doesn't exist
+    let user = await User.findOne({ clerkId: userId });
+    
+    if (!user) {
+      // Create user if they don't exist
+      const { currentUser } = await import('@clerk/nextjs/server');
+      const clerkUser = await currentUser();
+      
+      if (!clerkUser) {
+        return NextResponse.json({ error: 'Unable to get user data' }, { status: 400 });
+      }
+      
+      user = await User.findOrCreateFromClerk(clerkUser);
+    }
+    
     const body = await request.json();
     
     const { type, amount, description, date, category } = body;
@@ -58,10 +105,14 @@ export async function POST(request) {
       amount: parseFloat(amount),
       description: description || '',
       date: new Date(date),
-      category
+      category,
+      userId: user._id
     });
 
     const savedEntry = await entry.save();
+    
+    // Update user's financial summary
+    await user.updateFinancialSummary();
     
     // Format response
     const formattedEntry = {

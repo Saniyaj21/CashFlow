@@ -4,7 +4,7 @@ import { FaTrash, FaArrowUp, FaArrowDown, FaTag, FaEdit } from 'react-icons/fa';
 
 // EntryList.js
 // Modern card-based list of entries
-export default function EntryList({ entries, onDelete }) {
+export default function EntryList({ entries, onDelete, onEdit }) {
   if (!entries.length) return (
     <div className="text-center py-12">
       <div className="text-gray-400 text-4xl mb-3">💰</div>
@@ -62,7 +62,7 @@ export default function EntryList({ entries, onDelete }) {
              </div>
              <div className="flex items-center gap-2">
                <button 
-                 onClick={() => {/* TODO: Add edit functionality */}} 
+                 onClick={() => onEdit(entry)} 
                  className="flex items-center gap-1 px-2 py-1 text-xs text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200"
                >
                  <FaEdit size={11} />

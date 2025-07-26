@@ -6,12 +6,14 @@ import { FaPlus } from 'react-icons/fa';
 import { categoriesAPI } from '../../lib/api';
 import toast from 'react-hot-toast';
 
-export default function EntryForm({ onAdd }) {
-  const [type, setType] = useState('income');
-  const [amount, setAmount] = useState('');
-  const [description, setDescription] = useState('');
-  const [date, setDate] = useState(() => new Date().toISOString().slice(0, 10));
-  const [category, setCategory] = useState('General');
+export default function EntryForm({ onAdd, onUpdate, editEntry, onCancelEdit }) {
+  const isEditing = !!editEntry;
+  
+  const [type, setType] = useState(editEntry?.type || 'income');
+  const [amount, setAmount] = useState(editEntry?.amount?.toString() || '');
+  const [description, setDescription] = useState(editEntry?.description || '');
+  const [date, setDate] = useState(editEntry?.date || new Date().toISOString().slice(0, 10));
+  const [category, setCategory] = useState(editEntry?.category || 'General');
   const [categories, setCategories] = useState(['General']);
   const [showCustomCat, setShowCustomCat] = useState(false);
   const [customCat, setCustomCat] = useState('');
@@ -20,6 +22,17 @@ export default function EntryForm({ onAdd }) {
   useEffect(() => {
     loadCategories();
   }, []);
+
+  // Reset form when editEntry changes
+  useEffect(() => {
+    if (editEntry) {
+      setType(editEntry.type);
+      setAmount(editEntry.amount.toString());
+      setDescription(editEntry.description);
+      setDate(editEntry.date);
+      setCategory(editEntry.category);
+    }
+  }, [editEntry]);
 
   async function loadCategories() {
     try {
@@ -42,17 +55,40 @@ export default function EntryForm({ onAdd }) {
   function handleSubmit(e) {
     e.preventDefault();
     if (!amount || isNaN(amount)) return;
-    onAdd({
-      id: Date.now(),
+    
+    const entryData = {
       type,
       amount: parseFloat(amount),
       description,
       date,
       category,
-    });
+    };
+
+    if (isEditing) {
+      onUpdate(editEntry.id, entryData);
+    } else {
+      onAdd({
+        ...entryData,
+        id: Date.now(),
+      });
+      // Clear form only when adding (not editing)
+      setAmount('');
+      setDescription('');
+      setCategory('General');
+    }
+  }
+
+  function handleCancel() {
+    // Clear form inputs
+    setType('income');
     setAmount('');
     setDescription('');
+    setDate(new Date().toISOString().slice(0, 10));
     setCategory('General');
+    
+    if (onCancelEdit) {
+      onCancelEdit();
+    }
   }
 
   async function handleAddCategory(e) {
@@ -172,12 +208,23 @@ export default function EntryForm({ onAdd }) {
           </div>
         )}
       </div>
-      <button
-        type="submit"
-        className="w-full bg-blue-600 text-white font-bold py-4 px-8 rounded-2xl hover:bg-blue-700 transition-all duration-200 text-lg min-w-[120px] tracking-wide mt-4 hover:scale-105"
-      >
-        Add Entry
-      </button>
+      <div className="flex gap-3 mt-4">
+        {isEditing && (
+          <button
+            type="button"
+            onClick={handleCancel}
+            className="flex-1 bg-gray-500 text-white font-bold py-4 px-8 rounded-2xl hover:bg-gray-600 transition-all duration-200 text-lg tracking-wide hover:scale-105"
+          >
+            Cancel
+          </button>
+        )}
+        <button
+          type="submit"
+          className={`${isEditing ? 'flex-1' : 'w-full'} bg-blue-600 text-white font-bold py-4 px-8 rounded-2xl hover:bg-blue-700 transition-all duration-200 text-lg min-w-[120px] tracking-wide hover:scale-105`}
+        >
+          {isEditing ? 'Update Entry' : 'Add Entry'}
+        </button>
+      </div>
     </form>
   );
 }
