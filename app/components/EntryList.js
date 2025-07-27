@@ -1,10 +1,25 @@
 'use client';
 
 import { FaTrash, FaArrowUp, FaArrowDown, FaTag, FaEdit } from 'react-icons/fa';
+import { useState } from 'react';
 
 // EntryList.js
 // Modern card-based list of entries
 export default function EntryList({ entries, onDelete, onEdit }) {
+  const [deletingIds, setDeletingIds] = useState(new Set());
+
+  const handleDelete = async (entryId) => {
+    setDeletingIds(prev => new Set(prev).add(entryId));
+    try {
+      await onDelete(entryId);
+    } finally {
+      setDeletingIds(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(entryId);
+        return newSet;
+      });
+    }
+  };
   if (!entries.length) return (
     <div className="text-center py-12">
       <div className="text-gray-400 text-4xl mb-3">💰</div>
@@ -71,17 +86,36 @@ export default function EntryList({ entries, onDelete, onEdit }) {
              <div className="flex items-center gap-2">
                <button 
                  onClick={() => onEdit(entry)} 
-                 className="flex items-center gap-1 px-2 py-1 text-xs text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200"
+                 disabled={deletingIds.has(entry.id)}
+                 className={`flex items-center gap-1 px-2 py-1 text-xs rounded-lg transition-all duration-200 ${
+                   deletingIds.has(entry.id)
+                     ? 'text-gray-400 cursor-not-allowed bg-gray-50'
+                     : 'text-gray-500 hover:text-blue-600 hover:bg-blue-50'
+                 }`}
                >
                  <FaEdit size={11} />
                  Edit
                </button>
                <button 
-                 onClick={() => onDelete(entry.id)} 
-                 className="flex items-center gap-1 px-2 py-1 text-xs text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all duration-200"
+                 onClick={() => handleDelete(entry.id)} 
+                 disabled={deletingIds.has(entry.id)}
+                 className={`flex items-center gap-1 px-2 py-1 text-xs rounded-lg transition-all duration-200 ${
+                   deletingIds.has(entry.id)
+                     ? 'text-gray-400 cursor-not-allowed bg-gray-50'
+                     : 'text-gray-500 hover:text-red-600 hover:bg-red-50'
+                 }`}
                >
-                 <FaTrash size={11} />
-                 Delete
+                 {deletingIds.has(entry.id) ? (
+                   <>
+                     <div className="w-3 h-3 border border-gray-400 border-t-transparent rounded-full animate-spin"></div>
+                     Deleting...
+                   </>
+                 ) : (
+                   <>
+                     <FaTrash size={11} />
+                     Delete
+                   </>
+                 )}
                </button>
              </div>
            </div>

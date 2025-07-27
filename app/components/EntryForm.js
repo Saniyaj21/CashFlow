@@ -20,6 +20,7 @@ export default function EntryForm({ onAdd, onUpdate, editEntry, onCancelEdit }) 
   const [customCat, setCustomCat] = useState('');
   const [loadingCategories, setLoadingCategories] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isAddingCategory, setIsAddingCategory] = useState(false);
 
   useEffect(() => {
     loadCategories();
@@ -109,26 +110,29 @@ export default function EntryForm({ onAdd, onUpdate, editEntry, onCancelEdit }) 
   async function handleAddCategory(e) {
     e.preventDefault();
     const trimmed = customCat.trim();
-    if (!trimmed) return;
+    if (!trimmed || isAddingCategory) return;
     
     if (categories.includes(trimmed)) {
       toast.error('Category already exists');
       return;
     }
 
+    setIsAddingCategory(true);
+    
     try {
       await categoriesAPI.create({ name: trimmed });
       const updatedCategories = [...categories, trimmed];
       setCategories(updatedCategories);
       setCategory(trimmed);
       toast.success('Category added successfully!');
+      setCustomCat('');
+      setShowCustomCat(false);
     } catch (err) {
       console.error('Error adding category:', err);
       toast.error('Failed to add category: ' + err.message);
+    } finally {
+      setIsAddingCategory(false);
     }
-    
-    setCustomCat('');
-    setShowCustomCat(false);
   }
 
   return (
@@ -287,12 +291,33 @@ export default function EntryForm({ onAdd, onUpdate, editEntry, onCancelEdit }) 
               value={customCat}
               onChange={e => setCustomCat(e.target.value)}
               placeholder="New category"
-              className="border border-gray-200 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 w-full bg-white/90 text-gray-900 transition-all duration-200 shadow-sm"
+              disabled={isAddingCategory}
+              className={`border border-gray-200 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 w-full bg-white/90 text-gray-900 transition-all duration-200 shadow-sm ${
+                isAddingCategory ? 'opacity-60 cursor-not-allowed' : ''
+              }`}
               maxLength={20}
               autoFocus
               onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); handleAddCategory(e); } }}
             />
-            <button type="button" onClick={handleAddCategory} className="bg-indigo-500 text-white px-4 py-2 rounded-xl hover:bg-indigo-600 transition-all duration-200 hover:scale-105 font-semibold text-sm shadow-sm">Add</button>
+            <button 
+              type="button" 
+              onClick={handleAddCategory} 
+              disabled={isAddingCategory}
+              className={`px-4 py-2 rounded-xl transition-all duration-200 font-semibold text-sm shadow-sm flex items-center gap-2 ${
+                isAddingCategory
+                  ? 'bg-indigo-400 text-white cursor-not-allowed'
+                  : 'bg-indigo-500 text-white hover:bg-indigo-600 hover:scale-105'
+              }`}
+            >
+              {isAddingCategory ? (
+                <>
+                  <div className="w-3 h-3 border border-white border-t-transparent rounded-full animate-spin"></div>
+                  Adding...
+                </>
+              ) : (
+                'Add'
+              )}
+            </button>
           </div>
         )}
       </div>
