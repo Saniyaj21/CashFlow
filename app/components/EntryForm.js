@@ -19,6 +19,7 @@ export default function EntryForm({ onAdd, onUpdate, editEntry, onCancelEdit }) 
   const [showCustomCat, setShowCustomCat] = useState(false);
   const [customCat, setCustomCat] = useState('');
   const [loadingCategories, setLoadingCategories] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     loadCategories();
@@ -54,31 +55,40 @@ export default function EntryForm({ onAdd, onUpdate, editEntry, onCancelEdit }) 
     }
   }
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
-    if (!amount || isNaN(amount)) return;
+    if (!amount || isNaN(amount) || isSubmitting) return;
     
-    const entryData = {
-      type,
-      amount: parseFloat(amount),
-      description,
-      date,
-      category,
-      paymentMethod,
-    };
+    setIsSubmitting(true);
+    
+    try {
+      const entryData = {
+        type,
+        amount: parseFloat(amount),
+        description,
+        date,
+        category,
+        paymentMethod,
+      };
 
-    if (isEditing) {
-      onUpdate(editEntry.id, entryData);
-    } else {
-      onAdd({
-        ...entryData,
-        id: Date.now(),
-      });
-      // Clear form only when adding (not editing)
-      setAmount('');
-      setDescription('');
-      setCategory('General');
-      setPaymentMethod('cash');
+      if (isEditing) {
+        await onUpdate(editEntry.id, entryData);
+      } else {
+        await onAdd({
+          ...entryData,
+          id: Date.now(),
+        });
+        // Clear form only when adding (not editing)
+        setAmount('');
+        setDescription('');
+        setCategory('General');
+        setPaymentMethod('cash');
+      }
+    } catch (error) {
+      console.error('Error submitting form:', error);
+      toast.error('Failed to save transaction. Please try again.');
+    } finally {
+      setIsSubmitting(false);
     }
   }
 
@@ -157,7 +167,10 @@ export default function EntryForm({ onAdd, onUpdate, editEntry, onCancelEdit }) 
               value={amount}
               onChange={e => setAmount(e.target.value)}
               required
-              className="border border-gray-200 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 text-base min-w-0 w-full bg-white/90 text-gray-900 transition-all duration-200 pr-10 shadow-sm"
+              disabled={isSubmitting}
+              className={`border border-gray-200 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 text-base min-w-0 w-full bg-white/90 text-gray-900 transition-all duration-200 pr-10 shadow-sm ${
+                isSubmitting ? 'opacity-60 cursor-not-allowed' : ''
+              }`}
             />
             <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-lg">
               {amount && !isNaN(amount) ? (
@@ -188,7 +201,10 @@ export default function EntryForm({ onAdd, onUpdate, editEntry, onCancelEdit }) 
             type="date"
             value={date}
             onChange={e => setDate(e.target.value)}
-            className="border border-gray-300 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 min-w-0 w-full bg-white/80 text-gray-900 transition-all duration-200"
+            disabled={isSubmitting}
+            className={`border border-gray-200 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 min-w-0 w-full bg-white/90 text-gray-900 transition-all duration-200 shadow-sm ${
+              isSubmitting ? 'opacity-60 cursor-not-allowed' : ''
+            }`}
           />
         </div>
       </div>
@@ -200,7 +216,10 @@ export default function EntryForm({ onAdd, onUpdate, editEntry, onCancelEdit }) 
             placeholder="e.g. Paisa jata kaha hai bhai?"
             value={description}
             onChange={e => setDescription(e.target.value)}
-            className="border border-gray-200 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 min-w-0 w-full bg-white/90 text-gray-900 transition-all duration-200 shadow-sm"
+            disabled={isSubmitting}
+            className={`border border-gray-200 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 min-w-0 w-full bg-white/90 text-gray-900 transition-all duration-200 shadow-sm ${
+              isSubmitting ? 'opacity-60 cursor-not-allowed' : ''
+            }`}
           />
         </div>
 
@@ -239,7 +258,10 @@ export default function EntryForm({ onAdd, onUpdate, editEntry, onCancelEdit }) 
             <select
               value={category}
               onChange={e => setCategory(e.target.value)}
-              className="border border-gray-200 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 min-w-0 w-full bg-white/90 text-gray-900 transition-all duration-200 shadow-sm"
+              disabled={isSubmitting}
+              className={`border border-gray-200 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 min-w-0 w-full bg-white/90 text-gray-900 transition-all duration-200 shadow-sm ${
+                isSubmitting ? 'opacity-60 cursor-not-allowed' : ''
+              }`}
             >
               {categories.map(cat => (
                 <option key={cat} value={cat}>{cat}</option>
@@ -287,9 +309,21 @@ export default function EntryForm({ onAdd, onUpdate, editEntry, onCancelEdit }) 
         )}
         <button
           type="submit"
-          className={`${isEditing ? 'flex-1' : 'w-full'} bg-indigo-600 text-white font-bold py-2.5 px-6 rounded-xl hover:bg-indigo-700 transition-all duration-200 text-base min-w-[120px] tracking-wide hover:scale-105 shadow-md`}
+          disabled={isSubmitting}
+          className={`${isEditing ? 'flex-1' : 'w-full'} bg-indigo-600 text-white font-bold py-2.5 px-6 rounded-xl transition-all duration-200 text-base min-w-[120px] tracking-wide shadow-md flex items-center justify-center gap-2 ${
+            isSubmitting 
+              ? 'opacity-70 cursor-not-allowed' 
+              : 'hover:bg-indigo-700 hover:scale-105'
+          }`}
         >
-          {isEditing ? 'Update' : 'Save Transaction'}
+          {isSubmitting ? (
+            <>
+              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+              {isEditing ? 'Updating...' : 'Saving...'}
+            </>
+          ) : (
+            <>{isEditing ? 'Update' : 'Save Transaction'}</>
+          )}
         </button>
       </div>
     </form>

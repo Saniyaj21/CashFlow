@@ -18,6 +18,7 @@ const userSchema = new mongoose.Schema({
     unique: true,
     lowercase: true,
     trim: true,
+    index: true,
   },
   // User's full name from Clerk
   fullName: {
@@ -90,8 +91,6 @@ const userSchema = new mongoose.Schema({
 });
 
 // Index for better query performance
-userSchema.index({ clerkId: 1 });
-userSchema.index({ email: 1 });
 userSchema.index({ isActive: 1 });
 
 // Virtual for getting user's display name
@@ -146,4 +145,6 @@ userSchema.statics.findOrCreateFromClerk = async function(clerkUser) {
   return user;
 };
 
-export default mongoose.models.User || mongoose.model('User', userSchema); 
+// Prevent model recompilation error
+const User = mongoose.models.User || mongoose.model('User', userSchema);
+export default User; 

@@ -30,7 +30,9 @@ export default function ProfileSection() {
     return (
       <div className="w-full max-w-md flex flex-col items-center justify-center py-8">
         <div className="animate-pulse">
-          <div className="w-20 h-20 bg-gray-300 rounded-3xl mb-6"></div>
+          <div className="relative mb-6">
+            <div className="w-28 h-28 bg-gray-300 rounded-full mb-6"></div>
+          </div>
           <div className="h-8 bg-gray-300 rounded mb-3 w-32"></div>
           <div className="h-4 bg-gray-300 rounded w-48"></div>
         </div>
@@ -41,8 +43,17 @@ export default function ProfileSection() {
   if (!user) {
     return (
       <div className="w-full max-w-md flex flex-col items-center justify-center py-8">
-        <div className="w-20 h-20 bg-gradient-to-r from-red-400 to-pink-500 rounded-3xl flex items-center justify-center shadow-2xl mb-6">
-          <FaUserCircle size={40} className="text-white" />
+        <div className="relative mb-6">
+          <div className="w-28 h-28 bg-gradient-to-br from-red-400 to-pink-500 rounded-full flex items-center justify-center shadow-2xl relative overflow-hidden">
+            <div className="w-full h-full flex items-center justify-center">
+              <FaUserCircle size={56} className="text-white drop-shadow-lg" />
+            </div>
+          </div>
+          
+
+          
+          {/* Decorative ring */}
+          <div className="absolute inset-0 rounded-full border-4 border-white/20 shadow-inner"></div>
         </div>
         <h2 className="text-2xl font-bold text-gray-800 mb-3">Not Signed In</h2>
         <p className="text-gray-600 text-center mb-6">Please sign in to access your profile</p>
@@ -58,30 +69,47 @@ export default function ProfileSection() {
   return (
     <div className="w-full max-w-md flex flex-col items-center py-8">
       {/* User Avatar and Info */}
-      <div className="w-24 h-24 bg-gradient-to-r from-purple-400 to-pink-500 rounded-3xl flex items-center justify-center shadow-2xl mb-6">
-        {user.imageUrl ? (
-          <Image 
-            src={user.imageUrl} 
-            alt={user.fullName || 'User'} 
-            width={80}
-            height={80}
-            className="rounded-3xl object-cover"
-          />
-        ) : (
-          <FaUserCircle size={48} className="text-white" />
-        )}
+      <div className="relative mb-6">
+        <div className="w-28 h-28 bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 rounded-full flex items-center justify-center shadow-2xl relative overflow-hidden">
+          {user.imageUrl ? (
+            <Image 
+              src={user.imageUrl} 
+              alt={user.fullName || 'User'} 
+              width={112}
+              height={112}
+              className="rounded-full object-cover w-full h-full"
+              priority
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center">
+              <FaUserCircle size={56} className="text-white drop-shadow-lg" />
+            </div>
+          )}
+        </div>
+        
+
+        
+        {/* Decorative ring */}
+        <div className="absolute inset-0 rounded-full border-4 border-white/20 shadow-inner"></div>
       </div>
       
-      <h2 className="text-2xl font-bold text-gray-800 mb-2">
-        {user.fullName || 'User'}
-      </h2>
-      
-      <p className="text-gray-600 text-center mb-2">
-        {user.primaryEmailAddress?.emailAddress}
-      </p>
-      
-      <div className="text-xs text-gray-500 mb-8">
-        Member since {new Date(user.createdAt).toLocaleDateString()}
+      <div className="text-center mb-8">
+        <h2 className="text-2xl font-bold text-gray-800 mb-2">
+          {user.fullName || 'User'}
+        </h2>
+        
+        <div className="flex items-center justify-center gap-2 mb-3">
+          <p className="text-gray-600 text-sm">
+            {user.primaryEmailAddress?.emailAddress}
+          </p>
+        </div>
+        
+        <div className="inline-flex items-center gap-2 bg-gray-100/70 px-4 py-2 rounded-full">
+          <span className="text-xs text-gray-500">👤</span>
+          <span className="text-xs text-gray-600 font-medium">
+            Member since {new Date(user.createdAt).toLocaleDateString()}
+          </span>
+        </div>
       </div>
 
       {/* Sign Out Option */}

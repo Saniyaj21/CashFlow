@@ -30,7 +30,7 @@ export async function PUT(request, { params }) {
       user = await User.findOrCreateFromClerk(clerkUser);
     }
     
-    const { id } = params;
+    const { id } = await params;
     const body = await request.json();
     
     const { type, amount, description, date, category, paymentMethod } = body;
@@ -125,7 +125,7 @@ export async function DELETE(request, { params }) {
       user = await User.findOrCreateFromClerk(clerkUser);
     }
     
-    const { id } = params;
+    const { id } = await params;
 
     // Find entry and ensure it belongs to the user
     const entry = await Entry.findOne({ _id: id, userId: user._id });
@@ -178,7 +178,7 @@ export async function GET(request, { params }) {
       user = await User.findOrCreateFromClerk(clerkUser);
     }
     
-    const { id } = params;
+    const { id } = await params;
 
     // Find entry and ensure it belongs to the user
     const entry = await Entry.findOne({ _id: id, userId: user._id });

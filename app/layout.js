@@ -24,7 +24,6 @@ export const metadata = {
   description: "Track your income, expenses, and financial goals with our intuitive personal finance management app.",
   keywords: "finance, budget, expense tracker, income tracker, personal finance, money management",
   authors: [{ name: "CashFlow Team" }],
-  viewport: "width=device-width, initial-scale=1",
   robots: "index, follow",
   openGraph: {
     title: "CashFlow - Personal Finance Tracker",
@@ -37,6 +36,11 @@ export const metadata = {
     title: "CashFlow - Personal Finance Tracker",
     description: "Track your income, expenses, and financial goals with our intuitive personal finance management app.",
   },
+};
+
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
 };
 
 export default function RootLayout({ children }) {
