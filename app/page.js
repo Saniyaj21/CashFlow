@@ -4,8 +4,9 @@ import EntryForm from "./components/EntryForm";
 import EntryList from "./components/EntryList";
 import StatsGraph from "./components/StatsGraph";
 import ProfileSection from "./components/ProfileSection";
+import InsightsSection from "./components/InsightsSection";
 import { useEffect, useState, useCallback } from "react";
-import { FaHome, FaListUl, FaChartLine, FaPlusCircle, FaUserCircle } from 'react-icons/fa';
+import { FaHome, FaListUl, FaChartLine, FaPlusCircle, FaUserCircle, FaBrain } from 'react-icons/fa';
 import toast, { Toaster } from 'react-hot-toast';
 import { entriesAPI } from '../lib/api';
 import { useUser, SignInButton, SignUpButton, SignedIn, SignedOut, UserButton } from '@clerk/nextjs';
@@ -305,6 +306,8 @@ export default function Home() {
         </div>
       </div>
     );
+  } else if (activeTab === 'insights') {
+    mainContent = <InsightsSection />;
   } else if (activeTab === 'profile') {
     mainContent = <ProfileSection />;
   }
@@ -382,10 +385,11 @@ export default function Home() {
       {/* Bottom Navigation - only show when signed in */}
       <SignedIn>
         <nav className="fixed bottom-4 left-4 right-4 z-20 bg-white/70 backdrop-blur-md rounded-3xl flex justify-around items-center h-16 mx-auto max-w-md">
-          <button onClick={() => setActiveTab('home')} className={`flex flex-col items-center text-xs p-3 transition-all duration-200 ${activeTab==='home' ? 'text-blue-600' : 'text-gray-500 hover:text-gray-700'}`}> <FaPlusCircle size={20} /> <span className="mt-1">Add</span> </button>
-          <button onClick={() => setActiveTab('list')} className={`flex flex-col items-center text-xs p-3 transition-all duration-200 ${activeTab==='list' ? 'text-blue-600' : 'text-gray-500 hover:text-gray-700'}`}> <FaListUl size={20} /> <span className="mt-1">List</span> </button>
-          <button onClick={() => setActiveTab('stats')} className={`flex flex-col items-center text-xs p-3 transition-all duration-200 ${activeTab==='stats' ? 'text-blue-600' : 'text-gray-500 hover:text-gray-700'}`}> <FaChartLine size={20} /> <span className="mt-1">Stats</span> </button>
-          <button onClick={() => setActiveTab('profile')} className={`flex flex-col items-center text-xs p-3 transition-all duration-200 ${activeTab==='profile' ? 'text-blue-600' : 'text-gray-500 hover:text-gray-700'}`}> <FaUserCircle size={20} /> <span className="mt-1">Profile</span> </button>
+          <button onClick={() => setActiveTab('home')} className={`flex flex-col items-center text-xs p-2 transition-all duration-200 ${activeTab==='home' ? 'text-blue-600' : 'text-gray-500 hover:text-gray-700'}`}> <FaPlusCircle size={18} /> <span className="mt-1">Add</span> </button>
+          <button onClick={() => setActiveTab('list')} className={`flex flex-col items-center text-xs p-2 transition-all duration-200 ${activeTab==='list' ? 'text-blue-600' : 'text-gray-500 hover:text-gray-700'}`}> <FaListUl size={18} /> <span className="mt-1">List</span> </button>
+          <button onClick={() => setActiveTab('stats')} className={`flex flex-col items-center text-xs p-2 transition-all duration-200 ${activeTab==='stats' ? 'text-blue-600' : 'text-gray-500 hover:text-gray-700'}`}> <FaChartLine size={18} /> <span className="mt-1">Stats</span> </button>
+          <button onClick={() => setActiveTab('insights')} className={`flex flex-col items-center text-xs p-2 transition-all duration-200 ${activeTab==='insights' ? 'text-blue-600' : 'text-gray-500 hover:text-gray-700'}`}> <FaBrain size={18} /> <span className="mt-1">AI</span> </button>
+          <button onClick={() => setActiveTab('profile')} className={`flex flex-col items-center text-xs p-2 transition-all duration-200 ${activeTab==='profile' ? 'text-blue-600' : 'text-gray-500 hover:text-gray-700'}`}> <FaUserCircle size={18} /> <span className="mt-1">Profile</span> </button>
         </nav>
       </SignedIn>
     </div>
