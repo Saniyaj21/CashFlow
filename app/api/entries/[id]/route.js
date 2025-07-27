@@ -33,7 +33,7 @@ export async function PUT(request, { params }) {
     const { id } = params;
     const body = await request.json();
     
-    const { type, amount, description, date, category } = body;
+    const { type, amount, description, date, category, paymentMethod } = body;
 
     // Validate required fields
     if (!type || !amount || !date || !category) {
@@ -68,7 +68,8 @@ export async function PUT(request, { params }) {
         amount: parseFloat(amount),
         description: description || '',
         date: new Date(date),
-        category
+        category,
+        paymentMethod: paymentMethod || 'cash'
       },
       { new: true, runValidators: true }
     );
@@ -83,6 +84,7 @@ export async function PUT(request, { params }) {
       description: updatedEntry.description,
       date: updatedEntry.date.toISOString().split('T')[0],
       category: updatedEntry.category,
+      paymentMethod: updatedEntry.paymentMethod,
       createdAt: updatedEntry.createdAt,
       updatedAt: updatedEntry.updatedAt
     };
@@ -195,6 +197,7 @@ export async function GET(request, { params }) {
       description: entry.description,
       date: entry.date.toISOString().split('T')[0],
       category: entry.category,
+      paymentMethod: entry.paymentMethod,
       createdAt: entry.createdAt,
       updatedAt: entry.updatedAt
     };

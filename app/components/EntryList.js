@@ -33,6 +33,14 @@ export default function EntryList({ entries, onDelete, onEdit }) {
                 <div className="flex items-center gap-2 mt-1">
                   <FaTag className="text-gray-400" size={12} />
                   <span className="text-sm text-gray-600 font-medium">{entry.category}</span>
+                  <span className="text-xs text-gray-500">•</span>
+                  <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${
+                    entry.paymentMethod === 'upi' 
+                      ? 'bg-blue-100 text-blue-700' 
+                      : 'bg-green-100 text-green-700'
+                  }`}>
+                    {entry.paymentMethod === 'upi' ? '📱 UPI' : '💵 Cash'}
+                  </span>
                 </div>
               </div>
             </div>

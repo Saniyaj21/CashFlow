@@ -41,6 +41,7 @@ export async function GET() {
       description: entry.description,
       date: entry.date.toISOString().split('T')[0], // Format as YYYY-MM-DD
       category: entry.category,
+      paymentMethod: entry.paymentMethod,
       createdAt: entry.createdAt,
       updatedAt: entry.updatedAt
     }));
@@ -83,7 +84,7 @@ export async function POST(request) {
     
     const body = await request.json();
     
-    const { type, amount, description, date, category } = body;
+    const { type, amount, description, date, category, paymentMethod } = body;
     
     // Validate required fields
     if (!type || !amount || !date || !category) {
@@ -106,6 +107,7 @@ export async function POST(request) {
       description: description || '',
       date: new Date(date),
       category,
+      paymentMethod: paymentMethod || 'cash',
       userId: user._id
     });
 
@@ -122,6 +124,7 @@ export async function POST(request) {
       description: savedEntry.description,
       date: savedEntry.date.toISOString().split('T')[0],
       category: savedEntry.category,
+      paymentMethod: savedEntry.paymentMethod,
       createdAt: savedEntry.createdAt,
       updatedAt: savedEntry.updatedAt
     };

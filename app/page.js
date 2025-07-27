@@ -173,6 +173,21 @@ export default function Home() {
     const totalExpense = entries.filter(e => e.type === 'expense').reduce((sum, e) => sum + e.amount, 0);
     const netBalance = totalIncome - totalExpense;
 
+    // Calculate payment method statistics for filtered entries
+    const paymentMethodStats = {
+      income: { cash: 0, upi: 0 },
+      expense: { cash: 0, upi: 0 }
+    };
+    
+    currentFilteredEntries.forEach(entry => {
+      if (entry.paymentMethod === 'upi') {
+        paymentMethodStats[entry.type].upi += entry.amount;
+      } else {
+        // Default to cash for undefined/null payment methods
+        paymentMethodStats[entry.type].cash += entry.amount;
+      }
+    });
+
     mainContent = (
       <div className="w-full max-w-xl flex-1 flex flex-col items-center" style={{height: 'calc(100dvh - 120px)'}}>
         {loading ? (
@@ -210,27 +225,45 @@ export default function Home() {
 
             {/* Financial Summary Header */}
             <div className="w-full rounded-2xl p-4 mb-4">
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-3 gap-2">
                 <div className="text-center group">
-                  <div className="w-8 h-8 bg-green-500 rounded-lg mx-auto mb-2 flex items-center justify-center group-hover:scale-105 transition-transform">
-                    <span className="text-white text-sm font-bold">↗</span>
+                  <div className="w-6 h-6 bg-green-500 rounded-lg mx-auto mb-1 flex items-center justify-center group-hover:scale-105 transition-transform">
+                    <span className="text-white text-xs font-bold">↗</span>
                   </div>
                   <div className="text-xs text-gray-700 font-medium uppercase tracking-wide">Income</div>
-                  <div className="text-green-600 font-bold text-lg">{currentFilteredEntries.filter(e => e.type === 'income').reduce((sum, e) => sum + e.amount, 0).toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
+                  <div className="text-green-600 font-bold text-base">{currentFilteredEntries.filter(e => e.type === 'income').reduce((sum, e) => sum + e.amount, 0).toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
+                  <div className="text-xs text-gray-600 mt-1 text-center">
+                    <div className="flex items-center justify-center gap-1">
+                      <span className="text-green-600">💵 {paymentMethodStats.income.cash.toLocaleString('en-IN', {minimumFractionDigits:0, maximumFractionDigits:0})}</span>
+                      <span className="text-blue-600">📱 {paymentMethodStats.income.upi.toLocaleString('en-IN', {minimumFractionDigits:0, maximumFractionDigits:0})}</span>
+                    </div>
+                  </div>
                 </div>
                 <div className="text-center group">
-                  <div className="w-8 h-8 bg-red-500 rounded-lg mx-auto mb-2 flex items-center justify-center group-hover:scale-105 transition-transform">
-                    <span className="text-white text-sm font-bold">↙</span>
+                  <div className="w-6 h-6 bg-red-500 rounded-lg mx-auto mb-1 flex items-center justify-center group-hover:scale-105 transition-transform">
+                    <span className="text-white text-xs font-bold">↙</span>
                   </div>
                   <div className="text-xs text-gray-700 font-medium uppercase tracking-wide">Expense</div>
-                  <div className="text-red-500 font-bold text-lg">{currentFilteredEntries.filter(e => e.type === 'expense').reduce((sum, e) => sum + e.amount, 0).toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
+                  <div className="text-red-500 font-bold text-base">{currentFilteredEntries.filter(e => e.type === 'expense').reduce((sum, e) => sum + e.amount, 0).toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
+                  <div className="text-xs text-gray-600 mt-1 text-center">
+                    <div className="flex items-center justify-center gap-1">
+                      <span className="text-green-600">💵 {paymentMethodStats.expense.cash.toLocaleString('en-IN', {minimumFractionDigits:0, maximumFractionDigits:0})}</span>
+                      <span className="text-blue-600">📱 {paymentMethodStats.expense.upi.toLocaleString('en-IN', {minimumFractionDigits:0, maximumFractionDigits:0})}</span>
+                    </div>
+                  </div>
                 </div>
                 <div className="text-center group">
-                  <div className={`w-8 h-8 ${(currentFilteredEntries.filter(e => e.type === 'income').reduce((sum, e) => sum + e.amount, 0) - currentFilteredEntries.filter(e => e.type === 'expense').reduce((sum, e) => sum + e.amount, 0)) >= 0 ? 'bg-blue-500' : 'bg-orange-500'} rounded-lg mx-auto mb-2 flex items-center justify-center group-hover:scale-105 transition-transform`}>
-                    <span className="text-white text-sm font-bold">=</span>
+                  <div className={`w-6 h-6 ${(currentFilteredEntries.filter(e => e.type === 'income').reduce((sum, e) => sum + e.amount, 0) - currentFilteredEntries.filter(e => e.type === 'expense').reduce((sum, e) => sum + e.amount, 0)) >= 0 ? 'bg-blue-500' : 'bg-orange-500'} rounded-lg mx-auto mb-1 flex items-center justify-center group-hover:scale-105 transition-transform`}>
+                    <span className="text-white text-xs font-bold">=</span>
                   </div>
                   <div className="text-xs text-gray-700 font-medium uppercase tracking-wide">Balance</div>
-                  <div className={`font-bold text-lg ${(currentFilteredEntries.filter(e => e.type === 'income').reduce((sum, e) => sum + e.amount, 0) - currentFilteredEntries.filter(e => e.type === 'expense').reduce((sum, e) => sum + e.amount, 0)) >= 0 ? 'text-blue-600' : 'text-red-500'}`}>{(currentFilteredEntries.filter(e => e.type === 'income').reduce((sum, e) => sum + e.amount, 0) - currentFilteredEntries.filter(e => e.type === 'expense').reduce((sum, e) => sum + e.amount, 0)).toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
+                  <div className={`font-bold text-base ${(currentFilteredEntries.filter(e => e.type === 'income').reduce((sum, e) => sum + e.amount, 0) - currentFilteredEntries.filter(e => e.type === 'expense').reduce((sum, e) => sum + e.amount, 0)) >= 0 ? 'text-blue-600' : 'text-red-500'}`}>{(currentFilteredEntries.filter(e => e.type === 'income').reduce((sum, e) => sum + e.amount, 0) - currentFilteredEntries.filter(e => e.type === 'expense').reduce((sum, e) => sum + e.amount, 0)).toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
+                  <div className="text-xs text-gray-600 mt-1 text-center">
+                    <div className="flex items-center justify-center gap-1">
+                      <span className="text-green-600">💵 {(paymentMethodStats.income.cash - paymentMethodStats.expense.cash).toLocaleString('en-IN', {minimumFractionDigits:0, maximumFractionDigits:0})}</span>
+                      <span className="text-blue-600">📱 {(paymentMethodStats.income.upi - paymentMethodStats.expense.upi).toLocaleString('en-IN', {minimumFractionDigits:0, maximumFractionDigits:0})}</span>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -245,20 +278,22 @@ export default function Home() {
   } else if (activeTab === 'stats') {
     mainContent = (
       <div className="w-full flex flex-col items-center">
-        <div className="flex flex-col sm:flex-row gap-4 mb-6 flex-wrap rounded-2xl p-6 w-full max-w-xl justify-center animate-fade-in items-stretch">
-          <div className="flex flex-col items-center mx-2 flex-1 min-w-[120px]">
-            <span className="text-xs font-semibold text-gray-700 mb-1 tracking-wide uppercase">From</span>
-            <input type="date" value={fromDate} onChange={e => setFromDate(e.target.value)} className="border border-gray-300 rounded-2xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 bg-white/80 text-sm w-full text-gray-900 transition-all duration-200" />
-          </div>
-          <span className="hidden sm:inline text-gray-400 font-bold text-lg mx-2">→</span>
-          <div className="flex flex-col items-center mx-2 flex-1 min-w-[120px]">
-            <span className="text-xs font-semibold text-gray-700 mb-1 tracking-wide uppercase">To</span>
-            <input type="date" value={toDate} onChange={e => setToDate(e.target.value)} className="border border-gray-300 rounded-2xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 bg-white/80 text-sm w-full text-gray-900 transition-all duration-200" />
+        <div className="flex flex-col gap-2 mb-4 rounded-xl p-3 w-full max-w-xl justify-center animate-fade-in">
+          <div className="flex gap-2 w-full">
+            <div className="flex flex-col items-center flex-1">
+              <span className="text-xs font-semibold text-gray-700 mb-1 tracking-wide uppercase">From</span>
+              <input type="date" value={fromDate} onChange={e => setFromDate(e.target.value)} className="border border-gray-300 rounded-xl px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 bg-white/80 text-sm w-full text-gray-900 transition-all duration-200" />
+            </div>
+            <span className="text-gray-400 font-bold text-lg flex items-center">→</span>
+            <div className="flex flex-col items-center flex-1">
+              <span className="text-xs font-semibold text-gray-700 mb-1 tracking-wide uppercase">To</span>
+              <input type="date" value={toDate} onChange={e => setToDate(e.target.value)} className="border border-gray-300 rounded-xl px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 bg-white/80 text-sm w-full text-gray-900 transition-all duration-200" />
+            </div>
           </div>
           <button
             type="button"
             onClick={() => { setFromDate(''); setToDate(''); }}
-            className="sm:ml-4 px-6 py-2 rounded-2xl bg-gray-600 text-white hover:bg-gray-700 font-semibold text-xs mt-3 sm:mt-5 h-10 w-full sm:w-auto transition-all duration-200 hover:scale-105"
+            className="px-4 py-1.5 rounded-xl bg-gray-600 text-white hover:bg-gray-700 font-semibold text-xs h-8 w-full transition-all duration-200 hover:scale-105"
           >
             Reset
           </button>

@@ -14,6 +14,7 @@ export default function EntryForm({ onAdd, onUpdate, editEntry, onCancelEdit }) 
   const [description, setDescription] = useState(editEntry?.description || '');
   const [date, setDate] = useState(editEntry?.date || new Date().toISOString().slice(0, 10));
   const [category, setCategory] = useState(editEntry?.category || 'General');
+  const [paymentMethod, setPaymentMethod] = useState(editEntry?.paymentMethod || 'cash');
   const [categories, setCategories] = useState(['General']);
   const [showCustomCat, setShowCustomCat] = useState(false);
   const [customCat, setCustomCat] = useState('');
@@ -31,6 +32,7 @@ export default function EntryForm({ onAdd, onUpdate, editEntry, onCancelEdit }) 
       setDescription(editEntry.description);
       setDate(editEntry.date);
       setCategory(editEntry.category);
+      setPaymentMethod(editEntry.paymentMethod || 'cash');
     }
   }, [editEntry]);
 
@@ -62,6 +64,7 @@ export default function EntryForm({ onAdd, onUpdate, editEntry, onCancelEdit }) 
       description,
       date,
       category,
+      paymentMethod,
     };
 
     if (isEditing) {
@@ -75,6 +78,7 @@ export default function EntryForm({ onAdd, onUpdate, editEntry, onCancelEdit }) 
       setAmount('');
       setDescription('');
       setCategory('General');
+      setPaymentMethod('cash');
     }
   }
 
@@ -85,6 +89,7 @@ export default function EntryForm({ onAdd, onUpdate, editEntry, onCancelEdit }) 
     setDescription('');
     setDate(new Date().toISOString().slice(0, 10));
     setCategory('General');
+    setPaymentMethod('cash');
     
     if (onCancelEdit) {
       onCancelEdit();
@@ -117,15 +122,15 @@ export default function EntryForm({ onAdd, onUpdate, editEntry, onCancelEdit }) 
   }
 
   return (
-    <form onSubmit={handleSubmit} className="rounded-2xl p-6 flex flex-col gap-4 w-full max-w-md items-stretch mx-auto mt-2 mb-6 animate-fade-in flex-1">
+    <form onSubmit={handleSubmit} className="rounded-2xl p-4 flex flex-col gap-3 w-full max-w-md items-stretch mx-auto mt-2 mb-4 animate-fade-in flex-1">
       <div className="flex flex-col gap-1 w-full">
-        <span className="text-xs text-gray-700 font-semibold tracking-wide uppercase">Type</span>
+        <span className="text-xs text-gray-800 font-semibold tracking-wide uppercase">Type</span>
         <div className="flex gap-2 w-full">
           <button
             type="button"
             aria-label="Add Income"
             onClick={() => setType('income')}
-            className={`flex-1 px-3 py-2.5 font-semibold rounded-xl transition-all duration-200 ${type==='income' ? 'bg-green-500 text-white scale-105' : 'bg-white/60 text-gray-700 hover:bg-green-100 hover:text-green-700'}`}
+            className={`flex-1 px-3 py-2 font-semibold rounded-xl transition-all duration-200 ${type==='income' ? 'bg-emerald-500 text-white shadow-md scale-105' : 'bg-white/80 text-gray-700 hover:bg-emerald-50 hover:text-emerald-700 border border-gray-200'}`}
           >
             💰 Income
           </button>
@@ -133,16 +138,16 @@ export default function EntryForm({ onAdd, onUpdate, editEntry, onCancelEdit }) 
             type="button"
             aria-label="Add Expense"
             onClick={() => setType('expense')}
-            className={`flex-1 px-3 py-2.5 font-semibold rounded-xl transition-all duration-200 ${type==='expense' ? 'bg-red-500 text-white scale-105' : 'bg-white/60 text-gray-700 hover:bg-red-100 hover:text-red-700'}`}
+            className={`flex-1 px-3 py-2 font-semibold rounded-xl transition-all duration-200 ${type==='expense' ? 'bg-rose-500 text-white shadow-md scale-105' : 'bg-white/80 text-gray-700 hover:bg-rose-50 hover:text-rose-700 border border-gray-200'}`}
           >
             💸 Expense
           </button>
         </div>
       </div>
       
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-2 gap-2">
         <div className="flex flex-col gap-1 w-full">
-          <span className="text-xs text-gray-700 font-semibold tracking-wide uppercase">Amount</span>
+          <span className="text-xs text-gray-800 font-semibold tracking-wide uppercase">Amount</span>
           <div className="relative">
             <input
               type="number"
@@ -152,7 +157,7 @@ export default function EntryForm({ onAdd, onUpdate, editEntry, onCancelEdit }) 
               value={amount}
               onChange={e => setAmount(e.target.value)}
               required
-              className="border border-gray-300 rounded-xl px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-base min-w-0 w-full bg-white/80 text-gray-900 transition-all duration-200 pr-10"
+              className="border border-gray-200 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 text-base min-w-0 w-full bg-white/90 text-gray-900 transition-all duration-200 pr-10 shadow-sm"
             />
             <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-lg">
               {amount && !isNaN(amount) ? (
@@ -178,34 +183,63 @@ export default function EntryForm({ onAdd, onUpdate, editEntry, onCancelEdit }) 
           </div>
         </div>
         <div className="flex flex-col gap-1 w-full">
-          <span className="text-xs text-gray-700 font-semibold tracking-wide uppercase">Date</span>
+          <span className="text-xs text-gray-800 font-semibold tracking-wide uppercase">Date</span>
           <input
             type="date"
             value={date}
             onChange={e => setDate(e.target.value)}
-            className="border border-gray-300 rounded-xl px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 min-w-0 w-full bg-white/80 text-gray-900 transition-all duration-200"
+            className="border border-gray-300 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 min-w-0 w-full bg-white/80 text-gray-900 transition-all duration-200"
           />
         </div>
       </div>
       
+              <div className="flex flex-col gap-1 w-full">
+          <span className="text-xs text-gray-800 font-semibold tracking-wide uppercase">Description</span>
+          <input
+            type="text"
+            placeholder="e.g. Paisa jata kaha hai bhai?"
+            value={description}
+            onChange={e => setDescription(e.target.value)}
+            className="border border-gray-200 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 min-w-0 w-full bg-white/90 text-gray-900 transition-all duration-200 shadow-sm"
+          />
+        </div>
+
       <div className="flex flex-col gap-1 w-full">
-        <span className="text-xs text-gray-700 font-semibold tracking-wide uppercase">Description</span>
-        <input
-          type="text"
-          placeholder="e.g. Paisa jata kaha hai bhai?"
-          value={description}
-          onChange={e => setDescription(e.target.value)}
-          className="border border-gray-300 rounded-xl px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 min-w-0 w-full bg-white/80 text-gray-900 transition-all duration-200"
-        />
+        <span className="text-xs text-gray-800 font-semibold tracking-wide uppercase">Payment Method</span>
+        <div className="flex gap-1 w-full bg-gray-50 rounded-xl p-1 border border-gray-100">
+          <button
+            type="button"
+            onClick={() => setPaymentMethod('cash')}
+            className={`flex-1 py-2 px-3 rounded-lg font-semibold text-sm transition-all duration-200 ${
+              paymentMethod === 'cash' 
+                ? 'bg-emerald-500 text-white shadow-sm' 
+                : 'bg-white text-gray-600 hover:bg-gray-50 border border-gray-100'
+            }`}
+          >
+            💵 Cash
+          </button>
+          <button
+            type="button"
+            onClick={() => setPaymentMethod('upi')}
+            className={`flex-1 py-2 px-3 rounded-lg font-semibold text-sm transition-all duration-200 ${
+              paymentMethod === 'upi' 
+                ? 'bg-indigo-500 text-white shadow-sm' 
+                : 'bg-white text-gray-600 hover:bg-gray-50 border border-gray-100'
+            }`}
+          >
+            📱 UPI
+          </button>
+        </div>
       </div>
+
       <div className="flex flex-col gap-1 w-full">
-        <span className="text-xs text-gray-700 font-semibold tracking-wide uppercase">Category</span>
+        <span className="text-xs text-gray-800 font-semibold tracking-wide uppercase">Category</span>
         <div className="flex flex-col gap-1 w-full">
           <div className="flex gap-2 w-full items-center">
             <select
               value={category}
               onChange={e => setCategory(e.target.value)}
-              className="border border-gray-300 rounded-xl px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 min-w-0 w-full bg-white/80 text-gray-900 transition-all duration-200"
+              className="border border-gray-200 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 min-w-0 w-full bg-white/90 text-gray-900 transition-all duration-200 shadow-sm"
             >
               {categories.map(cat => (
                 <option key={cat} value={cat}>{cat}</option>
@@ -215,7 +249,7 @@ export default function EntryForm({ onAdd, onUpdate, editEntry, onCancelEdit }) 
               type="button"
               aria-label="Add custom category"
               onClick={() => setShowCustomCat(v => !v)}
-              className="px-3 py-2.5 rounded-xl bg-blue-500 text-white hover:bg-blue-600 flex items-center justify-center transition-all duration-200 hover:scale-105"
+              className="px-3 py-2 rounded-xl bg-indigo-500 text-white hover:bg-indigo-600 flex items-center justify-center transition-all duration-200 hover:scale-105 shadow-sm"
             >
               <FaPlus size={14} />
             </button>
@@ -231,12 +265,12 @@ export default function EntryForm({ onAdd, onUpdate, editEntry, onCancelEdit }) 
               value={customCat}
               onChange={e => setCustomCat(e.target.value)}
               placeholder="New category"
-              className="border border-gray-300 rounded-xl px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 w-full bg-white/80 text-gray-900 transition-all duration-200"
+              className="border border-gray-200 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 w-full bg-white/90 text-gray-900 transition-all duration-200 shadow-sm"
               maxLength={20}
               autoFocus
               onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); handleAddCategory(e); } }}
             />
-            <button type="button" onClick={handleAddCategory} className="bg-blue-500 text-white px-4 py-2.5 rounded-xl hover:bg-blue-600 transition-all duration-200 hover:scale-105 font-semibold text-sm">Add</button>
+            <button type="button" onClick={handleAddCategory} className="bg-indigo-500 text-white px-4 py-2 rounded-xl hover:bg-indigo-600 transition-all duration-200 hover:scale-105 font-semibold text-sm shadow-sm">Add</button>
           </div>
         )}
       </div>
@@ -246,14 +280,14 @@ export default function EntryForm({ onAdd, onUpdate, editEntry, onCancelEdit }) 
           <button
             type="button"
             onClick={handleCancel}
-            className="flex-1 bg-gray-500 text-white font-bold py-3 px-6 rounded-xl hover:bg-gray-600 transition-all duration-200 text-base tracking-wide hover:scale-105"
+            className="flex-1 bg-slate-500 text-white font-bold py-2.5 px-6 rounded-xl hover:bg-slate-600 transition-all duration-200 text-base tracking-wide hover:scale-105 shadow-sm"
           >
             Cancel
           </button>
         )}
         <button
           type="submit"
-          className={`${isEditing ? 'flex-1' : 'w-full'} bg-blue-600 text-white font-bold py-3 px-6 rounded-xl hover:bg-blue-700 transition-all duration-200 text-base min-w-[120px] tracking-wide hover:scale-105`}
+          className={`${isEditing ? 'flex-1' : 'w-full'} bg-indigo-600 text-white font-bold py-2.5 px-6 rounded-xl hover:bg-indigo-700 transition-all duration-200 text-base min-w-[120px] tracking-wide hover:scale-105 shadow-md`}
         >
           {isEditing ? 'Update' : 'Save Transaction'}
         </button>

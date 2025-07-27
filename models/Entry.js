@@ -28,6 +28,12 @@ const entrySchema = new mongoose.Schema({
     required: true,
     trim: true,
   },
+  paymentMethod: {
+    type: String,
+    enum: ['cash', 'upi'],
+    default: 'cash',
+    required: true,
+  },
   // Reference to the user who owns this entry
   userId: { 
     type: mongoose.Schema.Types.ObjectId, 

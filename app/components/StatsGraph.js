@@ -100,6 +100,23 @@ export default function StatsGraph({ entries }) {
   const totalExpense = data.reduce((a, b) => a + b.expense, 0);
   const netBalance = totalIncome - totalExpense;
 
+  // Calculate payment method statistics
+  const paymentMethodStats = useMemo(() => {
+    const stats = { 
+      income: { cash: 0, upi: 0 },
+      expense: { cash: 0, upi: 0 }
+    };
+    entries.forEach(entry => {
+      if (entry.paymentMethod === 'upi') {
+        stats[entry.type].upi += entry.amount;
+      } else {
+        // Default to cash for undefined/null payment methods
+        stats[entry.type].cash += entry.amount;
+      }
+    });
+    return stats;
+  }, [entries]);
+
   // Prepare cash flow trend data (running balance)
   const trendData = useMemo(() => {
     if (data.length === 0) return [];
@@ -311,31 +328,51 @@ export default function StatsGraph({ entries }) {
         <FaChartBar className="text-blue-600" />
         Financial Overview
       </h2>
-      <div className="grid grid-cols-3 gap-4 mb-6 w-full justify-items-center">
-        <div className="flex flex-col items-center bg-green-50/60 rounded-2xl p-3 w-full max-w-[120px]">
-          <div className="w-8 h-8 bg-green-500 rounded-lg mb-2 flex items-center justify-center">
-            <span className="text-white text-sm font-bold">↗</span>
+      <div className="grid grid-cols-3 gap-2 mb-4 w-full justify-items-center">
+        <div className="flex flex-col items-center bg-green-50/60 rounded-xl p-2 w-full max-w-[100px]">
+          <div className="w-6 h-6 bg-green-500 rounded-lg mb-1 flex items-center justify-center">
+            <span className="text-white text-xs font-bold">↗</span>
           </div>
           <span className="text-xs text-gray-700 font-medium uppercase tracking-wide">Income</span>
-          <div className="text-green-600 font-bold text-lg text-center">{totalIncome.toLocaleString('en-IN', {minimumFractionDigits:2, maximumFractionDigits:2})}</div>
+          <div className="text-green-600 font-bold text-base text-center">{totalIncome.toLocaleString('en-IN', {minimumFractionDigits:2, maximumFractionDigits:2})}</div>
+          <div className="text-xs text-gray-600 mt-1 text-center">
+            <div className="flex items-center justify-center gap-1">
+              <span className="text-green-600">💵 {paymentMethodStats.income.cash.toLocaleString('en-IN', {minimumFractionDigits:0, maximumFractionDigits:0})}</span>
+              <span className="text-blue-600">📱 {paymentMethodStats.income.upi.toLocaleString('en-IN', {minimumFractionDigits:0, maximumFractionDigits:0})}</span>
+            </div>
+          </div>
         </div>
 
-        <div className="flex flex-col items-center bg-red-50/60 rounded-2xl p-3 w-full max-w-[120px]">
-          <div className="w-8 h-8 bg-red-500 rounded-lg mb-2 flex items-center justify-center">
-            <span className="text-white text-sm font-bold">↙</span>
+        <div className="flex flex-col items-center bg-red-50/60 rounded-xl p-2 w-full max-w-[100px]">
+          <div className="w-6 h-6 bg-red-500 rounded-lg mb-1 flex items-center justify-center">
+            <span className="text-white text-xs font-bold">↙</span>
           </div>
           <span className="text-xs text-gray-700 font-medium uppercase tracking-wide">Expense</span>
-          <div className="text-red-500 font-bold text-lg text-center">{totalExpense.toLocaleString('en-IN', {minimumFractionDigits:2, maximumFractionDigits:2})}</div>
+          <div className="text-red-500 font-bold text-base text-center">{totalExpense.toLocaleString('en-IN', {minimumFractionDigits:2, maximumFractionDigits:2})}</div>
+          <div className="text-xs text-gray-600 mt-1 text-center">
+            <div className="flex items-center justify-center gap-1">
+              <span className="text-green-600">💵 {paymentMethodStats.expense.cash.toLocaleString('en-IN', {minimumFractionDigits:0, maximumFractionDigits:0})}</span>
+              <span className="text-blue-600">📱 {paymentMethodStats.expense.upi.toLocaleString('en-IN', {minimumFractionDigits:0, maximumFractionDigits:0})}</span>
+            </div>
+          </div>
         </div>
 
-        <div className={`flex flex-col items-center ${netBalance >= 0 ? 'bg-blue-50/60' : 'bg-orange-50/60'} rounded-2xl p-3 w-full max-w-[120px]`}>
-          <div className={`w-8 h-8 ${netBalance >= 0 ? 'bg-blue-500' : 'bg-orange-500'} rounded-lg mb-2 flex items-center justify-center`}>
-            <span className="text-white text-sm font-bold">=</span>
+        <div className={`flex flex-col items-center ${netBalance >= 0 ? 'bg-blue-50/60' : 'bg-orange-50/60'} rounded-xl p-2 w-full max-w-[100px]`}>
+          <div className={`w-6 h-6 ${netBalance >= 0 ? 'bg-blue-500' : 'bg-orange-500'} rounded-lg mb-1 flex items-center justify-center`}>
+            <span className="text-white text-xs font-bold">=</span>
           </div>
           <span className="text-xs text-gray-700 font-medium uppercase tracking-wide">Balance</span>
-          <div className={`font-bold text-lg text-center ${netBalance >= 0 ? 'text-blue-600' : 'text-red-500'}`}>{netBalance.toLocaleString('en-IN', {minimumFractionDigits:2, maximumFractionDigits:2})}</div>
+          <div className={`font-bold text-base text-center ${netBalance >= 0 ? 'text-blue-600' : 'text-red-500'}`}>{netBalance.toLocaleString('en-IN', {minimumFractionDigits:2, maximumFractionDigits:2})}</div>
+          <div className="text-xs text-gray-600 mt-1 text-center">
+            <div className="flex items-center justify-center gap-1">
+              <span className="text-green-600">💵 {(paymentMethodStats.income.cash - paymentMethodStats.expense.cash).toLocaleString('en-IN', {minimumFractionDigits:0, maximumFractionDigits:0})}</span>
+              <span className="text-blue-600">📱 {(paymentMethodStats.income.upi - paymentMethodStats.expense.upi).toLocaleString('en-IN', {minimumFractionDigits:0, maximumFractionDigits:0})}</span>
+            </div>
+          </div>
         </div>
       </div>
+
+
 
       {/* Horizontal Timeline */}
       {data.length > 0 && (
