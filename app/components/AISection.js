@@ -1,49 +1,58 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { FaBrain, FaComments, FaLightbulb, FaRedo, FaCoins } from 'react-icons/fa';
+import { FaBrain, FaComments, FaLightbulb, FaRedo, FaCoins, FaRobot, FaStar } from 'react-icons/fa';
 import InsightsSection from './InsightsSection';
 import { chatAPI } from '../../lib/api';
 import toast from 'react-hot-toast';
 
 export default function AISection() {
-  const [activeTab, setActiveTab] = useState('recommendations'); // 'chat' or 'recommendations'
+  const [activeTab, setActiveTab] = useState('chat'); // 'chat' or 'recommendations'
 
   return (
-    <div className="w-full max-w-xl flex flex-col items-center py-1">
-      {/* Credits Section */}
-      <div className="w-full flex justify-end mb-3">
-        <div className="flex items-center gap-1.5 text-amber-600">
-          <FaCoins size={12} />
-          <span className="text-xs font-medium">Credits: 999+</span>
+    <div className="w-full max-w-xl flex flex-col">
+      {/* Header with Credits */}
+      <div className="flex items-center justify-between mb-4 px-1">
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 bg-gradient-to-br from-purple-500 via-pink-500 to-orange-500 rounded-xl flex items-center justify-center shadow-lg">
+            <FaRobot className="text-white" size={16} />
+          </div>
+          <div>
+            <h2 className="text-lg font-bold text-gray-800">AI Assistant</h2>
+            <p className="text-xs text-gray-500">Your personal financial advisor</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-amber-50 to-yellow-50 rounded-full border border-amber-200">
+          <FaCoins size={12} className="text-amber-600" />
+          <span className="text-xs font-semibold text-amber-700">999+</span>
         </div>
       </div>
 
       {/* Tab Navigation */}
-      <div className="w-full mb-3">
-        <div className="flex bg-white/60 rounded-xl p-0.5 shadow-sm border border-gray-100">
+      <div className="w-full mb-4">
+        <div className="flex bg-gray-100/80 rounded-2xl p-1 shadow-inner">
           <button
             onClick={() => setActiveTab('chat')}
-            className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg font-medium text-xs transition-all duration-200 ${
+            className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-semibold text-sm transition-all duration-300 ${
               activeTab === 'chat'
-                ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-sm'
-                : 'text-gray-600 hover:text-gray-800 hover:bg-gray-50'
+                ? 'bg-white text-purple-600 shadow-md transform scale-105'
+                : 'text-gray-600 hover:text-gray-800 hover:bg-white/50'
             }`}
           >
-            <FaComments size={14} />
+            <FaComments size={16} />
             Chat
           </button>
           <button
             onClick={() => setActiveTab('recommendations')}
-            className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg font-medium text-xs transition-all duration-200 ${
+            className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-semibold text-sm transition-all duration-300 ${
               activeTab === 'recommendations'
-                ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-sm'
-                : 'text-gray-600 hover:text-gray-800 hover:bg-gray-50'
+                ? 'bg-white text-purple-600 shadow-md transform scale-105'
+                : 'text-gray-600 hover:text-gray-800 hover:bg-white/50'
             }`}
-          >
-            <FaLightbulb size={14} />
-            Insights
-          </button>
+                      >
+              <FaStar size={16} />
+              Insights
+            </button>
         </div>
       </div>
 
@@ -159,25 +168,25 @@ function ChatTab() {
   };
 
   return (
-    <div className="w-full flex flex-col h-[calc(100vh-280px)]">
+    <div className="w-full flex flex-col">
       {/* Messages Area */}
-      <div className="flex-1 bg-white/60 rounded-xl p-3 mb-3 overflow-y-auto border border-gray-100 messages-container">
-        <div className="space-y-3">
+      <div className="flex-1 bg-white/80 rounded-2xl p-4 mb-4 overflow-y-auto border border-gray-200/50 shadow-sm messages-container">
+        <div className="space-y-4">
           {messages.map((message) => (
             <div
               key={message.id}
               className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
             >
               <div
-                className={`max-w-[85%] p-2.5 rounded-xl ${
+                className={`max-w-[85%] p-4 rounded-2xl shadow-sm ${
                   message.type === 'user'
-                    ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white'
+                    ? 'bg-gradient-to-br from-purple-500 to-pink-500 text-white'
                     : 'bg-gray-50 text-gray-800 border border-gray-100'
                 }`}
               >
                 <p className="text-sm leading-relaxed">{message.content}</p>
-                <p className={`text-xs mt-1 ${
-                  message.type === 'user' ? 'text-blue-100' : 'text-gray-400'
+                <p className={`text-xs mt-2 ${
+                  message.type === 'user' ? 'text-purple-100' : 'text-gray-400'
                 }`}>
                   {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                 </p>
@@ -186,11 +195,12 @@ function ChatTab() {
           ))}
           {isLoading && (
             <div className="flex justify-start">
-              <div className="bg-gray-50 text-gray-800 p-2.5 rounded-xl border border-gray-100">
-                <div className="flex items-center gap-1.5">
-                  <div className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce"></div>
-                  <div className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                  <div className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+              <div className="bg-gray-50 text-gray-800 p-4 rounded-2xl border border-gray-100 shadow-sm">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-purple-500 rounded-full animate-bounce"></div>
+                  <div className="w-2 h-2 bg-purple-500 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                  <div className="w-2 h-2 bg-purple-500 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                  <span className="text-xs text-gray-500 ml-2">AI is thinking...</span>
                 </div>
               </div>
             </div>
@@ -200,9 +210,9 @@ function ChatTab() {
 
       {/* Suggested Questions - Show only if no conversation yet */}
       {messages.length === 1 && !isLoading && (
-        <div className="mb-3">
-          <p className="text-xs text-gray-500 mb-2">Try asking:</p>
-          <div className="flex flex-wrap gap-1.5">
+        <div className="mb-4">
+          <p className="text-xs text-gray-500 mb-3 font-medium">Try asking:</p>
+          <div className="grid grid-cols-2 gap-2">
             {suggestedQuestions.map((question, index) => (
               <button
                 key={index}
@@ -217,7 +227,7 @@ function ChatTab() {
                   setMessages(prev => [...prev, userMessage]);
                   sendMessageWithText(question);
                 }}
-                className="px-2.5 py-1.5 bg-blue-50 text-blue-600 rounded-lg text-xs font-medium hover:bg-blue-100 transition-colors border border-blue-100"
+                className="p-3 bg-gradient-to-r from-purple-50 to-pink-50 text-purple-700 rounded-xl text-xs font-medium hover:from-purple-100 hover:to-pink-100 transition-all duration-200 border border-purple-100 hover:border-purple-200 text-left"
               >
                 {question}
               </button>
@@ -227,34 +237,39 @@ function ChatTab() {
       )}
 
       {/* Input Area */}
-      <div className="flex gap-2">
-        <input
-          type="text"
-          value={inputMessage}
-          onChange={(e) => setInputMessage(e.target.value)}
-          onKeyPress={handleKeyPress}
-          placeholder="Ask me about your finances..."
-          className="flex-1 bg-white/60 border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
-          disabled={isLoading}
-        />
-        <button
-          onClick={sendMessage}
-          disabled={!inputMessage.trim() || isLoading}
-          className={`px-3 py-2 rounded-lg font-medium text-sm transition-all duration-200 ${
-            !inputMessage.trim() || isLoading
-              ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-              : 'bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:from-blue-600 hover:to-purple-700 shadow-sm'
-          }`}
-        >
-          Send
-        </button>
-      </div>
-      
-      {/* Credit Cost Info */}
-      <div className="w-full flex justify-center mt-2">
-        <div className="flex items-center gap-1 text-xs text-gray-500">
-          <FaCoins size={10} />
-          <span>1 credit per message</span>
+      <div className="bg-white/80 rounded-2xl p-4 border border-gray-200/50 shadow-sm">
+        <div className="flex gap-3 mb-2">
+          <input
+            type="text"
+            value={inputMessage}
+            onChange={(e) => setInputMessage(e.target.value)}
+            onKeyPress={handleKeyPress}
+            placeholder="Ask me about your finances..."
+            className="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent transition-all duration-200"
+            disabled={isLoading}
+          />
+          <button
+            onClick={sendMessage}
+            disabled={!inputMessage.trim() || isLoading}
+            className={`px-6 py-3 rounded-xl font-semibold text-sm transition-all duration-200 ${
+              !inputMessage.trim() || isLoading
+                ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                : 'bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:from-purple-600 hover:to-pink-600 shadow-md hover:shadow-lg transform hover:scale-105'
+            }`}
+          >
+            Send
+          </button>
+        </div>
+        
+        {/* Credit Cost Info */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-1 text-xs text-gray-500">
+            <FaCoins size={10} />
+            <span>1 credit per message</span>
+          </div>
+          <div className="text-xs text-gray-400">
+            {messages.length - 1} messages sent
+          </div>
         </div>
       </div>
     </div>

@@ -250,30 +250,6 @@ export default function InsightsSection() {
 
   return (
     <div className="w-full flex flex-col items-center">
-      {/* Refresh Button */}
-      <div className="w-full flex justify-end mb-3">
-        <button
-          onClick={refreshInsights}
-          disabled={refreshing}
-          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all duration-200 text-xs font-medium ${
-            refreshing
-              ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-              : 'bg-indigo-50 text-indigo-600 hover:bg-indigo-100 border border-indigo-100'
-          }`}
-        >
-          {refreshing ? (
-            <>
-              <div className="w-3 h-3 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
-              Refreshing...
-            </>
-          ) : (
-            <>
-              <FaRedo size={12} />
-              Refresh
-            </>
-          )}
-        </button>
-      </div>
 
       {/* Financial Health Score */}
       <div className="w-full bg-white/60 rounded-xl p-4 shadow-sm mb-3 border border-gray-100">
@@ -288,7 +264,6 @@ export default function InsightsSection() {
         </div>
         
         <div className="flex items-center gap-2 mb-2">
-          <span className="text-xl">{getHealthScoreEmoji(insights.healthScore)}</span>
           <div className="flex-1 bg-gray-200 rounded-full h-2">
             <div 
               className="bg-gradient-to-r from-green-500 to-blue-500 h-2 rounded-full transition-all duration-500"
@@ -335,37 +310,95 @@ export default function InsightsSection() {
 
       {/* Investment Opportunities */}
       <div className="w-full bg-white/60 rounded-xl p-4 shadow-sm mb-3 border border-gray-100">
-        <h3 className="text-base font-semibold text-gray-800 flex items-center gap-1.5 mb-3">
+        <h3 className="text-base font-semibold text-gray-800 flex items-center gap-1.5 mb-4">
           <FaRocket className={data.netBalance >= 0 ? "text-purple-500" : "text-red-500"} size={14} />
-          {data.netBalance >= 0 ? "Investment Opportunities" : "Financial Priorities"}
+          {data.netBalance >= 0 ? "Smart Investment Ideas" : "Financial Priorities"}
         </h3>
-        <div className="space-y-2">
+        
+        {/* Summary Card */}
+        <div className="mb-4 p-3 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border border-blue-100">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-sm font-semibold text-gray-700">Your Situation</span>
+            <span className={`text-xs px-2 py-1 rounded-full ${
+              data.netBalance >= 0 
+                ? 'bg-green-100 text-green-700' 
+                : 'bg-red-100 text-red-700'
+            }`}>
+              {data.netBalance >= 0 ? 'Positive Balance' : 'Negative Balance'}
+            </span>
+          </div>
+          <p className="text-xs text-gray-600">
+            {data.netBalance >= 0 
+              ? `You have ₹${data.netBalance.toLocaleString()} available to invest. Here are the best options for your situation.`
+              : `Your expenses exceed income by ₹${Math.abs(data.netBalance).toLocaleString()}. Focus on these priorities first.`
+            }
+          </p>
+        </div>
+
+        <div className="space-y-3">
           {investmentSuggestions.map((suggestion, index) => (
-            <div key={index} className={`flex items-center justify-between p-2.5 rounded-lg border ${
+            <div key={index} className={`p-4 rounded-xl border-2 ${
               suggestion.priority === 'Critical' ? 'bg-red-50 border-red-200' :
               suggestion.priority === 'High' ? 'bg-orange-50 border-orange-200' :
-              'bg-gradient-to-r from-purple-50 to-pink-50 border-purple-100'
+              suggestion.priority === 'Medium' ? 'bg-blue-50 border-blue-200' :
+              'bg-green-50 border-green-200'
             }`}>
-              <div className="flex items-center gap-2">
-                <div className={`w-6 h-6 bg-${suggestion.color}-500 rounded-md flex items-center justify-center`}>
-                  <span className="text-white text-xs font-bold">{index + 1}</span>
+              {/* Header */}
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-3">
+                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
+                    suggestion.priority === 'Critical' ? 'bg-red-500' :
+                    suggestion.priority === 'High' ? 'bg-orange-500' :
+                    suggestion.priority === 'Medium' ? 'bg-blue-500' :
+                    'bg-green-500'
+                  }`}>
+                    <span className="text-white text-sm font-bold">{index + 1}</span>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-gray-800">{suggestion.type}</h4>
+                    <div className={`text-xs px-2 py-1 rounded-full inline-block ${
+                      suggestion.priority === 'Critical' ? 'bg-red-100 text-red-700' :
+                      suggestion.priority === 'High' ? 'bg-orange-100 text-orange-700' :
+                      suggestion.priority === 'Medium' ? 'bg-blue-100 text-blue-700' :
+                      'bg-green-100 text-green-700'
+                    }`}>
+                      {suggestion.priority} Priority
+                    </div>
+                  </div>
                 </div>
-                <div>
-                  <div className="text-sm font-semibold text-gray-800">{suggestion.type}</div>
-                  <div className="text-xs text-gray-600">{suggestion.amount} • {suggestion.return} return</div>
+                <div className="text-right">
+                  <div className="text-lg font-bold text-gray-800">{suggestion.return}</div>
+                  <div className="text-xs text-gray-500">Expected Return</div>
                 </div>
               </div>
-              <div className="text-right">
-                <div className="text-xs font-semibold text-gray-800">{suggestion.return}</div>
-                <div className="text-xs text-gray-500">{suggestion.risk} risk</div>
-                {suggestion.priority && (
-                  <div className={`text-xs font-medium ${
-                    suggestion.priority === 'Critical' ? 'text-red-600' :
-                    suggestion.priority === 'High' ? 'text-orange-600' : 'text-gray-600'
-                  }`}>
-                    {suggestion.priority}
-                  </div>
-                )}
+
+              {/* Details */}
+              <div className="grid grid-cols-3 gap-3 text-center">
+                <div className="bg-white/60 rounded-lg p-2">
+                  <div className="text-xs text-gray-500 mb-1">Amount</div>
+                  <div className="text-sm font-semibold text-gray-800">{suggestion.amount}</div>
+                </div>
+                <div className="bg-white/60 rounded-lg p-2">
+                  <div className="text-xs text-gray-500 mb-1">Risk Level</div>
+                  <div className="text-sm font-semibold text-gray-800">{suggestion.risk}</div>
+                </div>
+                <div className="bg-white/60 rounded-lg p-2">
+                  <div className="text-xs text-gray-500 mb-1">Duration</div>
+                  <div className="text-sm font-semibold text-gray-800">{suggestion.duration}</div>
+                </div>
+              </div>
+
+              {/* Action Tip */}
+              <div className="mt-3 p-2 bg-white/60 rounded-lg">
+                <div className="text-xs text-gray-600">
+                  <span className="font-medium">💡 Tip:</span> {suggestion.type === 'Emergency Fund' ? 'Start building this immediately for financial security.' :
+                    suggestion.type === 'Debt Repayment' ? 'Pay off high-interest debts first to save money.' :
+                    suggestion.type === 'Mutual Funds' ? 'Consider starting with index funds for better diversification.' :
+                    suggestion.type === 'Fixed Deposit' ? 'Good for guaranteed returns with low risk.' :
+                    suggestion.type === 'SIP (Mutual Funds)' ? 'Systematic investment helps average out market volatility.' :
+                    suggestion.type === 'PPF' ? 'Tax-free returns with government backing.' :
+                    suggestion.type === 'RD (Recurring Deposit)' ? 'Regular savings with fixed returns.' : 'Start with small amounts and increase gradually.'}
+                </div>
               </div>
             </div>
           ))}
