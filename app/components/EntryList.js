@@ -48,14 +48,6 @@ export default function EntryList({ entries, onDelete, onEdit }) {
                 <div className="flex items-center gap-2 mt-1">
                   <FaTag className="text-gray-400" size={12} />
                   <span className="text-sm text-gray-600 font-medium">{entry.category}</span>
-                  <span className="text-xs text-gray-500">•</span>
-                  <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${
-                    entry.paymentMethod === 'upi' 
-                      ? 'bg-blue-100 text-blue-700' 
-                      : 'bg-green-100 text-green-700'
-                  }`}>
-                    {entry.paymentMethod === 'upi' ? '📱 UPI' : '💵 Cash'}
-                  </span>
                 </div>
               </div>
             </div>
@@ -76,12 +68,22 @@ export default function EntryList({ entries, onDelete, onEdit }) {
           
                      {/* Footer with actions */}
            <div className="flex items-center justify-between pt-2 border-t border-gray-100">
-             <div className="text-xs text-gray-500">
-               {new Date(entry.date).toLocaleDateString('en-IN', { 
-                 weekday: 'short', 
-                 day: 'numeric', 
-                 month: 'short' 
-               })}
+             <div className="flex items-center gap-3">
+               <div className="text-xs text-gray-500">
+                 {new Date(entry.date).toLocaleDateString('en-IN', { 
+                   weekday: 'short', 
+                   day: 'numeric', 
+                   month: 'short' 
+                 })}
+               </div>
+               <div className="w-1 h-1 bg-gray-300 rounded-full"></div>
+               <div className={`text-xs font-medium px-2.5 py-1 rounded-lg border uppercase ${
+                 entry.paymentMethod === 'upi' 
+                   ? 'bg-blue-50 text-blue-700 border-blue-200' 
+                   : 'bg-green-50 text-green-700 border-green-200'
+               }`}>
+                 {entry.paymentMethod === 'upi' ? 'UPI' : 'CASH'}
+               </div>
              </div>
              <div className="flex items-center gap-2">
                <button 
