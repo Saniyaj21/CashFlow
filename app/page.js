@@ -4,7 +4,7 @@ import EntryForm from "./components/EntryForm";
 import EntryList from "./components/EntryList";
 import StatsGraph from "./components/StatsGraph";
 import ProfileSection from "./components/ProfileSection";
-import InsightsSection from "./components/InsightsSection";
+import AISection from "./components/AISection";
 import { useEffect, useState, useCallback } from "react";
 import { FaHome, FaListUl, FaChartLine, FaPlusCircle, FaUserCircle, FaBrain } from 'react-icons/fa';
 import toast, { Toaster } from 'react-hot-toast';
@@ -307,7 +307,7 @@ export default function Home() {
       </div>
     );
   } else if (activeTab === 'insights') {
-    mainContent = <InsightsSection />;
+    mainContent = <AISection />;
   } else if (activeTab === 'profile') {
     mainContent = <ProfileSection />;
   }

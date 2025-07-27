@@ -249,32 +249,26 @@ export default function InsightsSection() {
   const savingsOpportunities = generateSavingsOpportunities(data.topSpendingCategories);
 
   return (
-    <div className="w-full max-w-xl flex flex-col items-center py-8">
-      {/* Header with Refresh Button */}
-      <div className="w-full flex items-center justify-between mb-6">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl flex items-center justify-center">
-            <FaBrain className="text-white" size={20} />
-          </div>
-          <h2 className="text-2xl font-bold text-gray-800">AI Insights</h2>
-        </div>
+    <div className="w-full flex flex-col items-center">
+      {/* Refresh Button */}
+      <div className="w-full flex justify-end mb-3">
         <button
           onClick={refreshInsights}
           disabled={refreshing}
-          className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all duration-200 ${
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all duration-200 text-xs font-medium ${
             refreshing
-              ? 'bg-gray-100 text-gray-500 cursor-not-allowed'
-              : 'bg-indigo-100 text-indigo-700 hover:bg-indigo-200'
+              ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+              : 'bg-indigo-50 text-indigo-600 hover:bg-indigo-100 border border-indigo-100'
           }`}
         >
           {refreshing ? (
             <>
-              <div className="w-4 h-4 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
+              <div className="w-3 h-3 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
               Refreshing...
             </>
           ) : (
             <>
-              <FaRedo size={14} />
+              <FaRedo size={12} />
               Refresh
             </>
           )}
@@ -282,28 +276,28 @@ export default function InsightsSection() {
       </div>
 
       {/* Financial Health Score */}
-      <div className="w-full bg-white/80 rounded-2xl p-6 shadow-sm mb-6">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
-            <FaStar className="text-yellow-500" />
+      <div className="w-full bg-white/60 rounded-xl p-4 shadow-sm mb-3 border border-gray-100">
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="text-base font-semibold text-gray-800 flex items-center gap-1.5">
+            <FaStar className="text-yellow-500" size={14} />
             Financial Health
           </h3>
-          <div className={`px-3 py-1 rounded-full text-sm font-bold ${getHealthScoreColor(insights.healthScore)}`}>
+          <div className={`px-2 py-1 rounded-lg text-xs font-bold ${getHealthScoreColor(insights.healthScore)}`}>
             {insights.healthScore}/100
           </div>
         </div>
         
-        <div className="flex items-center gap-3 mb-3">
-          <span className="text-2xl">{getHealthScoreEmoji(insights.healthScore)}</span>
-          <div className="flex-1 bg-gray-200 rounded-full h-3">
+        <div className="flex items-center gap-2 mb-2">
+          <span className="text-xl">{getHealthScoreEmoji(insights.healthScore)}</span>
+          <div className="flex-1 bg-gray-200 rounded-full h-2">
             <div 
-              className="bg-gradient-to-r from-green-500 to-blue-500 h-3 rounded-full transition-all duration-500"
+              className="bg-gradient-to-r from-green-500 to-blue-500 h-2 rounded-full transition-all duration-500"
               style={{ width: `${insights.healthScore}%` }}
             ></div>
           </div>
         </div>
         
-        <p className="text-sm text-gray-600 font-medium">
+        <p className="text-xs text-gray-600 font-medium">
           {getHealthScoreMessage(insights.healthScore)} • {insights.healthScore >= 80 ? 'Keep it up!' :
            insights.healthScore >= 60 ? 'Room for improvement' :
            'Focus on recommendations below'}
@@ -311,13 +305,13 @@ export default function InsightsSection() {
       </div>
 
       {/* Dynamic Quick Stats */}
-      <div className="w-full grid grid-cols-2 gap-4 mb-6">
-        <div className="bg-white/80 rounded-2xl p-4 shadow-sm">
-          <div className="flex items-center gap-2 mb-2">
-            <FaPiggyBank className={data.savingsRate >= 0 ? "text-green-500" : "text-red-500"} size={16} />
-            <span className="text-sm font-semibold text-gray-700">Savings Rate</span>
+      <div className="w-full grid grid-cols-2 gap-3 mb-3">
+        <div className="bg-white/60 rounded-xl p-3 shadow-sm border border-gray-100">
+          <div className="flex items-center gap-1.5 mb-1.5">
+            <FaPiggyBank className={data.savingsRate >= 0 ? "text-green-500" : "text-red-500"} size={14} />
+            <span className="text-xs font-semibold text-gray-700">Savings Rate</span>
           </div>
-          <div className={`text-2xl font-bold ${data.savingsRate >= 0 ? "text-green-600" : "text-red-600"}`}>
+          <div className={`text-lg font-bold ${data.savingsRate >= 0 ? "text-green-600" : "text-red-600"}`}>
             {data.savingsRate >= 0 ? "+" : ""}{data.savingsRate}%
           </div>
           <div className="text-xs text-gray-500">
@@ -325,12 +319,12 @@ export default function InsightsSection() {
           </div>
         </div>
 
-        <div className="bg-white/80 rounded-2xl p-4 shadow-sm">
-          <div className="flex items-center gap-2 mb-2">
-            <FaCoins className={data.netBalance >= 0 ? "text-blue-500" : "text-red-500"} size={16} />
-            <span className="text-sm font-semibold text-gray-700">Net Balance</span>
+        <div className="bg-white/60 rounded-xl p-3 shadow-sm border border-gray-100">
+          <div className="flex items-center gap-1.5 mb-1.5">
+            <FaCoins className={data.netBalance >= 0 ? "text-blue-500" : "text-red-500"} size={14} />
+            <span className="text-xs font-semibold text-gray-700">Net Balance</span>
           </div>
-          <div className={`text-2xl font-bold ${data.netBalance >= 0 ? "text-blue-600" : "text-red-600"}`}>
+          <div className={`text-lg font-bold ${data.netBalance >= 0 ? "text-blue-600" : "text-red-600"}`}>
             ₹{data.netBalance >= 0 ? "+" : ""}{data.netBalance.toLocaleString()}
           </div>
           <div className="text-xs text-gray-500">
@@ -340,29 +334,29 @@ export default function InsightsSection() {
       </div>
 
       {/* Investment Opportunities */}
-      <div className="w-full bg-white/80 rounded-2xl p-6 shadow-sm mb-4">
-        <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2 mb-4">
-          <FaRocket className={data.netBalance >= 0 ? "text-purple-500" : "text-red-500"} />
+      <div className="w-full bg-white/60 rounded-xl p-4 shadow-sm mb-3 border border-gray-100">
+        <h3 className="text-base font-semibold text-gray-800 flex items-center gap-1.5 mb-3">
+          <FaRocket className={data.netBalance >= 0 ? "text-purple-500" : "text-red-500"} size={14} />
           {data.netBalance >= 0 ? "Investment Opportunities" : "Financial Priorities"}
         </h3>
-        <div className="space-y-3">
+        <div className="space-y-2">
           {investmentSuggestions.map((suggestion, index) => (
-            <div key={index} className={`flex items-center justify-between p-3 rounded-xl border ${
+            <div key={index} className={`flex items-center justify-between p-2.5 rounded-lg border ${
               suggestion.priority === 'Critical' ? 'bg-red-50 border-red-200' :
               suggestion.priority === 'High' ? 'bg-orange-50 border-orange-200' :
               'bg-gradient-to-r from-purple-50 to-pink-50 border-purple-100'
             }`}>
-              <div className="flex items-center gap-3">
-                <div className={`w-8 h-8 bg-${suggestion.color}-500 rounded-lg flex items-center justify-center`}>
+              <div className="flex items-center gap-2">
+                <div className={`w-6 h-6 bg-${suggestion.color}-500 rounded-md flex items-center justify-center`}>
                   <span className="text-white text-xs font-bold">{index + 1}</span>
                 </div>
                 <div>
-                  <div className="font-semibold text-gray-800">{suggestion.type}</div>
+                  <div className="text-sm font-semibold text-gray-800">{suggestion.type}</div>
                   <div className="text-xs text-gray-600">{suggestion.amount} • {suggestion.return} return</div>
                 </div>
               </div>
               <div className="text-right">
-                <div className="text-sm font-semibold text-gray-800">{suggestion.return}</div>
+                <div className="text-xs font-semibold text-gray-800">{suggestion.return}</div>
                 <div className="text-xs text-gray-500">{suggestion.risk} risk</div>
                 {suggestion.priority && (
                   <div className={`text-xs font-medium ${
@@ -380,25 +374,25 @@ export default function InsightsSection() {
 
       {/* Savings Opportunities */}
       {savingsOpportunities.length > 0 && (
-        <div className="w-full bg-white/80 rounded-2xl p-6 shadow-sm mb-4">
-          <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2 mb-4">
-            <FaChartPie className="text-green-500" />
+        <div className="w-full bg-white/60 rounded-xl p-4 shadow-sm mb-3 border border-gray-100">
+          <h3 className="text-base font-semibold text-gray-800 flex items-center gap-1.5 mb-3">
+            <FaChartPie className="text-green-500" size={14} />
             Save More Money
           </h3>
-          <div className="space-y-3">
+          <div className="space-y-2">
             {savingsOpportunities.map((opportunity, index) => (
-              <div key={index} className="flex items-center justify-between p-3 bg-green-50/60 rounded-xl">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center">
+              <div key={index} className="flex items-center justify-between p-2.5 bg-green-50/60 rounded-lg border border-green-100">
+                <div className="flex items-center gap-2">
+                  <div className="w-6 h-6 bg-green-500 rounded-md flex items-center justify-center">
                     <span className="text-white text-xs font-bold">₹</span>
                   </div>
                   <div>
-                    <div className="font-semibold text-gray-800">{opportunity.category}</div>
+                    <div className="text-sm font-semibold text-gray-800">{opportunity.category}</div>
                     <div className="text-xs text-gray-600">{opportunity.tip}</div>
                   </div>
                 </div>
                 <div className="text-right">
-                  <div className="text-sm font-semibold text-green-600">Save ₹{opportunity.savings}</div>
+                  <div className="text-xs font-semibold text-green-600">Save ₹{opportunity.savings}</div>
                   <div className="text-xs text-gray-500">{opportunity.current} → {opportunity.suggested}</div>
                 </div>
               </div>
@@ -408,18 +402,18 @@ export default function InsightsSection() {
       )}
 
       {/* Smart Tips - Dynamic */}
-      <div className="w-full bg-white/80 rounded-2xl p-6 shadow-sm mb-4">
-        <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2 mb-4">
-          <FaLightbulb className="text-yellow-500" />
+      <div className="w-full bg-white/60 rounded-xl p-4 shadow-sm mb-3 border border-gray-100">
+        <h3 className="text-base font-semibold text-gray-800 flex items-center gap-1.5 mb-3">
+          <FaLightbulb className="text-yellow-500" size={14} />
           Smart Tips
         </h3>
-        <div className="space-y-3">
+        <div className="space-y-2">
           {insights.smartTips.slice(0, 2).map((tip, index) => (
-            <div key={index} className="flex items-start gap-3 p-3 bg-yellow-50/60 rounded-xl">
-              <div className="w-6 h-6 bg-yellow-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+            <div key={index} className="flex items-start gap-2 p-2.5 bg-yellow-50/60 rounded-lg border border-yellow-100">
+              <div className="w-5 h-5 bg-yellow-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
                 <span className="text-white text-xs font-bold">{index + 1}</span>
               </div>
-              <p className="text-gray-700 text-sm leading-relaxed">
+              <p className="text-gray-700 text-xs leading-relaxed">
                 {tip.replace(/^Tip \d+: /, '')}
               </p>
             </div>
@@ -428,18 +422,18 @@ export default function InsightsSection() {
       </div>
 
       {/* Priority Actions - Dynamic */}
-      <div className="w-full bg-white/80 rounded-2xl p-6 shadow-sm mb-4">
-        <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2 mb-4">
-          <FaBullseye className="text-green-500" />
+      <div className="w-full bg-white/60 rounded-xl p-4 shadow-sm mb-3 border border-gray-100">
+        <h3 className="text-base font-semibold text-gray-800 flex items-center gap-1.5 mb-3">
+          <FaBullseye className="text-green-500" size={14} />
           Priority Actions
         </h3>
-        <div className="space-y-3">
+        <div className="space-y-2">
           {insights.priorityActions.slice(0, 2).map((action, index) => (
-            <div key={index} className="flex items-start gap-3 p-3 bg-green-50/60 rounded-xl">
-              <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+            <div key={index} className="flex items-start gap-2 p-2.5 bg-green-50/60 rounded-lg border border-green-100">
+              <div className="w-5 h-5 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
                 <span className="text-white text-xs font-bold">{index + 1}</span>
               </div>
-              <p className="text-gray-700 text-sm leading-relaxed">
+              <p className="text-gray-700 text-xs leading-relaxed">
                 {action.replace(/^Action \d+: /, '')}
               </p>
             </div>
@@ -448,13 +442,13 @@ export default function InsightsSection() {
       </div>
 
       {/* Key Insight - Dynamic */}
-      <div className="w-full bg-white/80 rounded-2xl p-6 shadow-sm">
-        <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2 mb-3">
-          <FaChartLine className="text-purple-500" />
+      <div className="w-full bg-white/60 rounded-xl p-4 shadow-sm border border-gray-100">
+        <h3 className="text-base font-semibold text-gray-800 flex items-center gap-1.5 mb-3">
+          <FaChartLine className="text-purple-500" size={14} />
           Key Insight
         </h3>
-        <div className="bg-purple-50/60 rounded-xl p-4">
-          <p className="text-gray-700 text-sm leading-relaxed">
+        <div className="bg-purple-50/60 rounded-lg p-3 border border-purple-100">
+          <p className="text-gray-700 text-xs leading-relaxed">
             {data.netBalance >= 0 
               ? `You have a net balance of ₹${data.netBalance.toLocaleString()} with a ${data.savingsRate}% savings rate. Consider exploring investment options like FDs or mutual funds.`
               : `Your net balance is ₹${data.netBalance.toLocaleString()} (negative). Focus on reducing expenses and building an emergency fund first.`
